@@ -1,5 +1,13 @@
 const nodemailer = require('nodemailer')
-const {MAIL_FROM_ADDRESS} = require('../configs/env')
+const pug = require('pug');
+const path = require('path');
+const moment = require('moment')
+const {
+  MAIL_FROM_ADDRESS,
+  MAILER_HOST,
+  MAILER_USER,
+  MAILER_PASSWORD
+} = require('../configs/env')
 
 class Mailer {
   constructor (transporter) {
@@ -16,15 +24,28 @@ class Mailer {
   }
 
   sendOtp(email, otp, expiredAt) {
+    const htmlContent = pug.renderFile(path.join(__dirname, '../views', 'otp.pug'), {
+      otp,
+      expiredAt: moment(expiredAt).format('YYYY-MM-DD HH:mm'),
+    });
+
     return this.transporter.sendMail({
       from: MAIL_FROM_ADDRESS,
       to: email,
-      subject: "Skdir",
-      text: otp
+      subject: "Otp",
+      html: htmlContent
     })
   }
 }
 
-const transporter = nodemailer.createTransport()
+const transporter = nodemailer.createTransport({
+  host: MAILER_HOST,
+  port: 465, // Replace with your SMTP port (e.g., 465 for SSL, 587 for TLS)
+  secure: true, // true for 465, false for other ports
+  auth: {
+    user: MAILER_USER,
+    pass: MAILER_PASSWORD,
+  },
+})
 
 module.exports = new Mailer(transporter)

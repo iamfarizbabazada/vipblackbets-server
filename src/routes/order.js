@@ -12,7 +12,7 @@ const { validateObjectId, bulkValidateObjectId } = require('../utils/validate-ob
 const paginationValidator = celebrate({
   [Segments.QUERY]: Joi.object().keys({
     page: Joi.number().positive().integer().default(1),
-    limit: Joi.number().positive().integer().default(20)
+    limit: Joi.number().positive().integer().default(20),
   })
 })
 
@@ -21,17 +21,18 @@ router.get(
   ensureRole(['ADMIN']),
   paginationValidator,
   async (req, res) => {
-    const { page, limit } = req.query
+    const { page = 1, limit = 20 } = req.query
     const skip = (page - 1) * limit
 
     const total = await Order.countDocuments()
+  
     const orders = await Order.find()
       .limit(limit)
       .skip(skip)
       .sort({ createdAt: 'desc' })
 
     res.json({ orders, total })
-  })
+})
 
 router.get(
   '/:id',
@@ -47,21 +48,21 @@ router.get(
 
 const createOrderValidator = celebrate({
   [Segments.BODY]: Joi.object().keys({
-    order: Joi.object().keys({
-      status: Joi.string().valid('PENDING').default('PENDING').forbidden(),
-      amount: Joi.number().min(0),
-      paymentType: Joi.string(),
-      provider: Joi.string()
-    })
+    status: Joi.string().valid('PENDING').default('PENDING').forbidden(),
+    amount: Joi.number().min(0),
+    paymentType: Joi.string(),
+    provider: Joi.string()
   })
 })
 
 router.post(
   '/',
-  ensureRole(['ADMIN']),
+  ensureRole(['USER']),
   createOrderValidator,
+  upload.single('file'),
   async (req, res) => {
-    const newOrder = new Order(req.body.order)
+    const newOrder = new Order(req.body)
+    newOrder.file = req.file.filename
     newOrder.user = req.user
     await newOrder.save()
 

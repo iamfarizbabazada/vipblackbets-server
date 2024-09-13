@@ -15,10 +15,9 @@ mongoose.set('strictQuery', false)
 
 mongoose.connect(MONGODB_CONNECTION_STRING, {
   dbName: DB_NAME,
-  useNewUrlParser: true,
-  useUnifiedTopology: true
 })
 
 const db = mongoose.connection
+
 
 module.exports = db

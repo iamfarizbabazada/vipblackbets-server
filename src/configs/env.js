@@ -9,6 +9,10 @@ const envValidationSchema = Joi.object()
       .default('development')
       .description('Specifies the environment in which the application is running. Valid values are: "production" (for live production), "development" (for development purposes), and "test" (for running tests). Default value is "development".'),
 
+    BASE_URL: Joi.string()
+      .default('http://localhost:8080')
+      .description('The base URL of the application, including the protocol, host, and port. Default value is "http://localhost:8080".'),
+    
     HOST: Joi.string()
       .default('0.0.0.0')
       .description('The IP address on which the application will listen. Default value is "0.0.0.0", which means it will accept connections from all network interfaces.'),

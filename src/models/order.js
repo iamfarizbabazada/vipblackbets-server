@@ -1,6 +1,8 @@
 const mongoose = require('mongoose')
 const mongooseAutopopulate = require('mongoose-autopopulate')
 const mongooseDelete = require('mongoose-delete')
+const { BASE_URL } = require('../configs/env')
+
 
 const statuses = ['PENDING', 'COMPLETED', 'REJECTED']
 const DEFAULT_STATUS = "PENDING"
@@ -14,7 +16,7 @@ const orderSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    autopopulate: true,
+    autopopulate: {select: ['name', 'email', 'avatar']},
     required: true
   },
   amount: {
@@ -28,9 +30,14 @@ const orderSchema = new mongoose.Schema({
   provider: {
     type: String,
     required: true
+  },
+  file: {
+    type: String,
   }
 }, {
-  timestamps: true
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
 })
 
 class Order {
@@ -63,6 +70,9 @@ orderSchema.plugin(mongooseDelete, {
 })
 orderSchema.loadClass(Order)
 
+orderSchema.virtual('fileURL').get(function() {
+  return `${BASE_URL}/uploads/${this.file}`;
+});
 
 
 module.exports = mongoose.model('Order', orderSchema, 'orders')

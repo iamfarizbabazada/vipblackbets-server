@@ -1,7 +1,7 @@
 const createError = require('http-errors')
 
 function ensureNoActiveSession (req, res, next) {
-  if (req.isAuthenticated()) return createError.BadRequest()
+  if (req.isAuthenticated()) return next(createError.BadRequest())
   next()
 }
 

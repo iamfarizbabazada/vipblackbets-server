@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const passportLocalMongoose = require('passport-local-mongoose')
 const mongooseAutopopulate = require('mongoose-autopopulate')
 const mongooseDelete = require('mongoose-delete')
+const { BASE_URL } = require('../configs/env')
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -18,9 +19,9 @@ const userSchema = new mongoose.Schema({
   },
   avatar: {
     type: String,
-    trim: true
+    trim: true,
   },
-  isEmailVerified: {
+  emailVerified: {
     type: Boolean,
     default: false
   },
@@ -29,20 +30,28 @@ const userSchema = new mongoose.Schema({
     default: null
   },
 }, {
-  timestamps: true
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
 })
 
 class User {
   static checkEmailVerified (email) {
-    return this.exists({ email, isEmailVerified: true })
+    return this.exists({ email, emailVerified: true })
   }
 
   static checkDeleted (email) {
-    return this.exists({ email, isDeleted: true })
+    return this.exists({ email, deleted: true })
   }
 
   changeAvatar (url) {
     this.avatar = url
+    return this.save()
+  }
+
+  verify() {
+    this.emailVerified = true
+    this.emailVerifiedAt = Date.now()
     return this.save()
   }
 
@@ -87,5 +96,10 @@ userSchema.plugin(mongooseDelete, {
 })
 
 userSchema.loadClass(User)
+
+
+userSchema.virtual('avatarURL').get(function() {
+  return `${BASE_URL}/uploads/${this.avatar}`;
+});
 
 module.exports = mongoose.model('User', userSchema, 'users')

@@ -6,13 +6,37 @@ const { validateObjectId } = require('../utils/validate-objectid')
 const { ensureRole } = require('../middlewares/auth')
 const upload = require('../middlewares/upload')
 
+const paginationValidator = celebrate({
+  [Segments.QUERY]: Joi.object().keys({
+    page: Joi.number().positive().integer().default(1),
+    limit: Joi.number().positive().integer().default(20),
+    name: Joi.string().optional()
+  })
+})
+
+
 router.get(
   '/',
   ensureRole('ADMIN'),
+  paginationValidator,
   async (req, res) => {
-    const users = await User.find({ isDeleted: false })
-    res.json(users)
-  })
+    const { page = 1, limit = 20, name } = req.query
+    const skip = (page - 1) * limit
+    const filter = {}
+
+    if (name) {
+      filter.name = new RegExp(name, 'i')
+    }
+
+
+    const total = await User.countDocuments(filter)
+    const orders = await User.find(filter)
+      .limit(limit)
+      .skip(skip)
+      .sort({ createdAt: 'desc' })
+
+    res.json({ orders, total })
+})
 
 router.get(
   '/:id',
@@ -21,7 +45,7 @@ router.get(
     validateObjectId(req.params.id)
 
     const user = await User.findById(req.params.id)
-    if (!user || user.isDeleted) throw createError(404)
+    if (!user) throw createError(404)
 
     res.json(user)
   })
@@ -63,29 +87,35 @@ const updateUserValidator = celebrate({
 
 router.put(
   '/:id',
-  ensureRole('EDITOR'),
+  ensureRole('ADMIN'),
   updateUserValidator,
   async (req, res) => {
     validateObjectId(req.params.id)
     const user = await User.findByIdAndUpdate(req.params.id, req.body.user)
+    let status = 200
 
     if (req.body.password) {
-      user.setPassword(req.body.password, () => {
-        user.save()
+      user.setPassword(req.body.password, (err) => {
+        if(err) {
+          console.log(err)
+          status = 400
+        } else {
+          user.save()
+        }
       })
     }
 
-    res.sendStatus(200)
+    res.sendStatus(status)
   })
 
 router.patch(
   '/upload/avatar/:id',
-  ensureRole('EDITOR'),
+  ensureRole('ADMIN'),
   upload.single('avatar'), async (req, res) => {
     validateObjectId(req.params.id)
 
     const user = await User.findById(req.params.id)
-    if (!user || user.isDeleted) throw createError(404)
+    if (!user) throw createError(404)
 
     await user.changeAvatar(req.file.filename)
 
@@ -99,7 +129,7 @@ router.delete(
     validateObjectId(req.params.id)
 
     const user = await User.findById(req.params.id)
-    if (!user || user.isDeleted) throw createError(404)
+    if (!user) throw createError(404)
 
     await user.delete()
 

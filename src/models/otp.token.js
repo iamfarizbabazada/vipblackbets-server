@@ -9,7 +9,6 @@ const otpTokenSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    autopopulate: true
   },
   salt: {
     type: String,
@@ -36,7 +35,8 @@ class OtpToken {
     const {otp, salt, hash} = Otp.generate()
     const expiredAt = moment().add(MAIL_EXPIRATION_MINUTES, 'minutes').toDate()
 
-    await this.save({ user, salt, hash, expiredAt })
+    const newOtpToken = new this({ user, salt, hash, expiredAt })
+    await newOtpToken.save()
     return { rawOtp: otp, expiredAt: expiredAt }    
   }
 

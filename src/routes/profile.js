@@ -1,6 +1,7 @@
 const router = require('express-promise-router')()
 const { celebrate, Joi, Segments } = require('celebrate')
 const User = require('../models/user')
+const Order = require('../models/order')
 const { ensureAuth } = require('../middlewares/auth')
 const upload = require('../middlewares/upload')
 
@@ -20,21 +21,20 @@ const updateProfileValidator = celebrate({
   })
 })
 
-// router.get(
-//   '/blogs',
-//   ensureAuth,
-//   async (req, res) => {
-//     const { blogs = [] } = await req.user.loadBlogs()
-//     res.json(blogs)
-//   }
-// )
+router.get(
+  '/orders',
+  ensureAuth,
+  async (req, res) => {
+    const orders = await Order.find({user: req.user})
+    res.json(orders)
+})
 
 router.put(
   '/',
   ensureAuth,
   updateProfileValidator,
   async (req, res) => {
-    await User.updateOne(req.user._id, req.body.profile)
+    await User.updateOne({email: req.user.email}, req.body.profile)
     res.sendStatus(200)
 })
 
@@ -51,10 +51,15 @@ router.patch(
   changePasswordValidator,
   async (req, res) => {
     const user = req.user
-    user.changePassword(req.body.oldPassword, req.body.newPassword, () => {
-      user.save()
+    user.changePassword(req.body.oldPassword, req.body.newPassword, async (err) => {
+      console.log(err)
+      if(!err) {
+        await user.save()
+        res.sendStatus(200)
+      } else {
+        res.sendStatus(401)
+      }
     })
-    res.sendStatus(200)
   })
 
 router.patch(

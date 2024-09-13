@@ -3,10 +3,13 @@ const {
   SESSION_SECRET,
   COOKIE_MAX_AGE
 } = require('./configs/env')
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpecs = require('./configs/swagger');
 const createError = require('http-errors')
-
+const path = require('path')
 const express = require('express')
 const morgan = require('morgan')
+const logger = require('./utils/logger')
 const cors = require('cors')
 const helmet = require('helmet')
 const sanitize = require('express-mongo-sanitize').sanitize
@@ -50,6 +53,9 @@ app.use(
   })
 )
 
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
+
 // process inputs
 // redisClient.subscribe('newsletter', mailer.sendNewsletter)
 
@@ -61,7 +67,12 @@ passport.use(User.createStrategy())
 passport.serializeUser(User.serializeUser())
 passport.deserializeUser(User.deserializeUser())
 
-app.use(morgan('dev'))
+app.use(morgan('dev', {
+  stream: {
+    write: (msg) => logger.info(msg.trim())
+  }
+}))
+
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
@@ -75,16 +86,19 @@ app.all('*', (req, res, next) => {
   next()
 })
 
+app.use(express.static(path.join(__dirname, '../public')));
+
 app.get('/', (req, res) => {
   res.redirect('/health')
 })
 
 app.get('/health', (req, res) => {
-  res.json({
-    status: 'OK',
-    timestamp: Date.now()
-  })
+  res.sendStatus(200)
 })
+
+if(!IS_PRODUCTION) {
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
+}
 
 app.use('/api/auth', authRouter)
 app.use('/api/profile', profileRouter)
@@ -101,6 +115,8 @@ app.use(function (err, req, res, next) {
   res.locals.message = err.message
   res.locals.error = req.app.get('env') === 'development' ? err : {}
 
+  logger.error(err)
+
   res.status(err.status || 500)
   res.send(
     req.app.get('env') === 'development'
@@ -108,5 +124,20 @@ app.use(function (err, req, res, next) {
       : { message: err.message }
   )
 })
+
+
+async function seed() {
+  if(await User.countDocuments({role: 'ADMIN'}) > 1) return
+
+  const newUser = new User({
+    name: "admin",
+    email: "admin@admin.com",
+    role: "ADMIN"
+  })
+
+  await User.register(newUser, "password123")
+}
+
+seed()
 
 module.exports = app
