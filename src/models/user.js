@@ -1,0 +1,91 @@
+const mongoose = require('mongoose')
+const passportLocalMongoose = require('passport-local-mongoose')
+const mongooseAutopopulate = require('mongoose-autopopulate')
+const mongooseDelete = require('mongoose-delete')
+
+const userSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    trim: true,
+    minlength: 3,
+    maxlength: 60
+  },
+  role: {
+    type: String,
+    enum: ['ADMIN', 'USER'],
+    default: 'USER'
+  },
+  avatar: {
+    type: String,
+    trim: true
+  },
+  isEmailVerified: {
+    type: Boolean,
+    default: false
+  },
+  emailVerifiedAt: {
+    type: Date,
+    default: null
+  },
+}, {
+  timestamps: true
+})
+
+class User {
+  static checkEmailVerified (email) {
+    return this.exists({ email, isEmailVerified: true })
+  }
+
+  static checkDeleted (email) {
+    return this.exists({ email, isDeleted: true })
+  }
+
+  changeAvatar (url) {
+    this.avatar = url
+    return this.save()
+  }
+
+  // addBlog (blog) {
+  //   this.blogs.push(blog)
+  //   blog.author = this
+  // }
+
+  // loadBlogs () {
+  //   return this.populate('blogs')
+  // }
+
+  // removeBlog (blog) {
+  //   this.blogs.pull(blog)
+
+  //   // const indexToRemove = this.blogs.findIndex(blogId => blogId === blog._id)
+
+  //   // if (indexToRemove === -1) return null
+
+  //   // this.blogs.splice(indexToRemove, 1)
+  // }
+}
+
+userSchema.plugin(passportLocalMongoose, {
+  usernameField: 'email',
+  lastLoginField: true
+})
+
+userSchema.plugin(mongooseAutopopulate)
+
+userSchema.plugin(mongooseDelete, {
+  overrideMethods: [
+    'aggregate',
+    'countDocuments',
+    'find',
+    'findOne',
+    'findOneAndUpdate',
+    'update',
+    'updateMany',
+    'updateOne'
+  ]
+})
+
+userSchema.loadClass(User)
+
+module.exports = mongoose.model('User', userSchema, 'users')
