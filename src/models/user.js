@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const passportLocalMongoose = require('passport-local-mongoose')
+const { Expo } = require('expo-server-sdk')
 const mongooseAutopopulate = require('mongoose-autopopulate')
 const mongooseDelete = require('mongoose-delete')
 const { BASE_URL } = require('../configs/env')
@@ -29,6 +30,9 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: null
   },
+  expoPushToken: {
+    type: String,
+  },
 }, {
   timestamps: true,
   toJSON: { virtuals: true },
@@ -42,6 +46,15 @@ class User {
 
   static checkDeleted (email) {
     return this.exists({ email, deleted: true })
+  }
+
+  updateExpoToken(token) {
+    if(Expo.isExpoPushToken(token)) {
+      this.expoPushToken = token
+      return this.save()
+    } else {
+      return Promise.reject(new Error('Token invalid!'))
+    }
   }
 
   changeAvatar (url) {

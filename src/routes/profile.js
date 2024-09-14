@@ -2,6 +2,7 @@ const router = require('express-promise-router')()
 const { celebrate, Joi, Segments } = require('celebrate')
 const User = require('../models/user')
 const Order = require('../models/order')
+const Notification = require('../models/notification')
 const { ensureAuth } = require('../middlewares/auth')
 const upload = require('../middlewares/upload')
 
@@ -85,6 +86,38 @@ router.delete(
     })
     res.sendStatus(200)
   })
+
+
+const notificationValidation = celebrate({
+    [Segments.BODY]: Joi.object().keys({
+      token: Joi.string().required()
+    })
+  })
+
+  router.get(
+    '/notifications',
+    ensureAuth,
+    async (req, res) => {
+      res.json(await Notification.find({ receiver: req.user }))
+    })
+  
+
+
+router.post(
+  '/notifications',
+  ensureAuth,
+  notificationValidation,
+  async (req, res) => {
+    const { token } = req.body
+
+    try {
+      await req.user.updateExpoToken(token)
+      res.sendStatus(200)
+    } catch(err) {
+      res.sendStatus(400)
+    }
+  }
+)
 
 router.get(
   '/support',

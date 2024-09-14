@@ -169,6 +169,108 @@
  *         description: Unauthorized
  */
 
+/**
+ * @swagger
+ * /api/profile/notifications:
+ *   post:
+ *     summary: Update Expo notification token
+ *     tags: [Notification]
+ *     description: Updates the Expo notification token for the authenticated user.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               token:
+ *                 type: string
+ *                 description: The Expo push notification token.
+ *                 example: "ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]"
+ *     responses:
+ *       200:
+ *         description: Expo notification token updated successfully
+ *       400:
+ *         description: Bad request - invalid token or update failed
+ *       401:
+ *         description: Unauthorized - user must be authenticated
+ */
+
+
+/**
+ * @swagger
+ * /api/profile/notifications:
+ *   get:
+ *     summary: Retrieve notifications for the authenticated user
+ *     tags: [Notification]
+ *     description: Fetches a list of notifications for the currently authenticated user.
+ *     responses:
+ *       200:
+ *         description: A list of notifications for the authenticated user
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                     description: Unique identifier of the notification
+ *                     example: "60d21b4667d0d8992e610c85"
+ *                   receiver:
+ *                     type: string
+ *                     description: ID of the user who receives the notification
+ *                     example: "60d21b4667d0d8992e610c84"
+ *                   title:
+ *                     type: string
+ *                     description: Title of the notification
+ *                     example: "Reminder"
+ *                   body:
+ *                     type: string
+ *                     description: Body content of the notification
+ *                     example: "Don't forget to check your tasks for today."
+ *                   data:
+ *                     type: object
+ *                     description: Additional data related to the notification
+ *                     example: { "taskId": "12345" }
+ *                   status:
+ *                     type: string
+ *                     description: Status of the notification
+ *                     example: "unread"
+ *                   createdAt:
+ *                     type: string
+ *                     format: date-time
+ *                     description: Timestamp when the notification was created
+ *                     example: "2024-09-14T12:34:56Z"
+ *                   updatedAt:
+ *                     type: string
+ *                     format: date-time
+ *                     description: Timestamp when the notification was last updated
+ *                     example: "2024-09-14T12:34:56Z"
+ *       401:
+ *         description: Unauthorized - user must be authenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Unauthorized"
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Internal Server Error"
+ */
+
+
 
 /**
  * @swagger

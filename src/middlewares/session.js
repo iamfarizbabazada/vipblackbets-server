@@ -2,7 +2,7 @@ const {
   IS_PRODUCTION,
   SESSION_SECRET,
   COOKIE_MAX_AGE
-} = require('./configs/env')
+} = require('../configs/env')
 
 const session = require('express-session')
 const redisClient = require('../redis')
