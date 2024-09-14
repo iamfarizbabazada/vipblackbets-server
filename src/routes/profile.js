@@ -86,4 +86,12 @@ router.delete(
     res.sendStatus(200)
   })
 
+router.get(
+  '/support',
+  ensureAuth,
+  async (req, res) => {
+    const admins = await User.find({ role: 'ADMIN' })
+    res.json(admins)
+  })
+
 module.exports = router

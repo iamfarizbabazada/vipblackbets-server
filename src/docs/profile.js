@@ -168,3 +168,38 @@
  *       401:
  *         description: Unauthorized
  */
+
+
+/**
+ * @swagger
+ * /api/profile/support:
+ *   get:
+ *     summary: Get list of admins
+ *     tags: [Support]
+ *     description: Retrieve a list of all users with the 'ADMIN' role.
+ *     responses:
+ *       200:
+ *         description: List of admins retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                     description: Unique identifier of the user
+ *                   name:
+ *                     type: string
+ *                     description: Name of the user
+ *                   email:
+ *                     type: string
+ *                     description: Email address of the user
+ *                   role:
+ *                     type: string
+ *                     description: Role of the user
+ *                     example: ADMIN
+ *       401:
+ *         description: Unauthorized
+ */

@@ -1,7 +1,5 @@
 const {
   IS_PRODUCTION,
-  SESSION_SECRET,
-  COOKIE_MAX_AGE
 } = require('./configs/env')
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpecs = require('./configs/swagger');
@@ -15,12 +13,8 @@ const helmet = require('helmet')
 const sanitize = require('express-mongo-sanitize').sanitize
 const compression = require('compression')
 const { errors } = require('celebrate')
-
-const session = require('express-session')
+const { sessionMiddleware } = require('./middlewares/session');
 const cookieParser = require('cookie-parser')
-const redisClient = require('./redis')
-const RedisStore = require('connect-redis').default
-// const mailer = require('./utils/mailer')
 
 const passport = require('passport')
 const User = require('./models/user')
@@ -29,7 +23,7 @@ require('./db')
 const authRouter = require('./routes/auth')
 const profileRouter = require('./routes/profile')
 const userRouter = require('./routes/user')
-const orderRouter = require('./routes/order')
+const orderRouter = require('./routes/order');
 
 const app = express()
 
@@ -39,25 +33,13 @@ app.use(cors())
 
 app.set('trust proxy', 1)
 
-app.use(
-  session({
-    store: new RedisStore({ client: redisClient }),
-    secret: SESSION_SECRET,
-    cookie: {
-      maxAge: COOKIE_MAX_AGE,
-      sameSite: IS_PRODUCTION && 'none',
-      secure: IS_PRODUCTION
-    },
-    resave: false,
-    saveUninitialized: false
-  })
-)
+
+
+app.use(sessionMiddleware)
 
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 
-// process inputs
-// redisClient.subscribe('newsletter', mailer.sendNewsletter)
 
 app.use(passport.initialize())
 app.use(passport.session())
