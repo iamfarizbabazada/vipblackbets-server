@@ -40,7 +40,12 @@ const envValidationSchema = Joi.object()
     REDIS_PORT: Joi.number()
       .default(6379)
       .description('The port number on which the Redis server is running. Default value is 6379, which is the default port for Redis.'),
-
+    REDIS_USERNAME: Joi.string()
+      .required()
+      .description('The username of the Redis server.'),
+    REDIS_PASSWORD: Joi.string()
+      .required()
+      .description('The password of the Redis server.'),
     // SESSION
     SESSION_SECRET: Joi.string()
       .required()

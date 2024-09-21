@@ -1,6 +1,7 @@
 const { Expo } = require('expo-server-sdk');
 const Notification = require('../models/notification');
-const { BadRequestError } = require('./errors');
+const { BadRequest } = require('http-errors');
+const logger = require('../utils/logger')
 
 const expo = new Expo();
 
@@ -19,7 +20,7 @@ const createNotificationDocument = (message, status) => {
 
 const sendPushNotification = async ({ pushToken = '', title, sticky = false, body, status, subtitle, data }) => {
     if (!validateExpoPushToken(pushToken)) {
-        console.log(`Push token ${pushToken} is not a valid Expo push token`);
+        logger.info(`Push token ${pushToken} is not a valid Expo push token`);
         return;
     }
 
@@ -61,7 +62,7 @@ const sendPushNotificationBulk = async ({ pushTokens, title, status, body, data 
         }));
 
     if (validMessages.length === 0) {
-        console.log('No valid push tokens provided.');
+        logger.info('No valid push tokens provided.');
         return;
     }
 

@@ -1,4 +1,5 @@
 const router = require('express-promise-router')()
+const rateLimit = require('express-rate-limit')
 const { celebrate, Joi, Segments } = require('celebrate')
 const User = require('../models/user')
 const Order = require('../models/order')
@@ -32,6 +33,13 @@ router.get(
 
 router.put(
   '/',
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    limit: 5, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+    standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+    // store: ... , // Redis, Memcached, etc. See below.
+  }),
   ensureAuth,
   updateProfileValidator,
   async (req, res) => {
@@ -48,6 +56,13 @@ const changePasswordValidator = celebrate({
 
 router.patch(
   '/change-password',
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    limit: 3, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+    standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+    // store: ... , // Redis, Memcached, etc. See below.
+  }),
   ensureAuth,
   changePasswordValidator,
   async (req, res) => {
@@ -65,6 +80,13 @@ router.patch(
 
 router.patch(
   '/upload/avatar/',
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    limit: 3, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+    standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+    // store: ... , // Redis, Memcached, etc. See below.
+  }),
   ensureAuth,
   upload.single('avatar'),
   async (req, res) => {
@@ -94,7 +116,7 @@ const notificationValidation = celebrate({
     })
   })
 
-  router.get(
+router.get(
     '/notifications',
     ensureAuth,
     async (req, res) => {
@@ -105,6 +127,13 @@ const notificationValidation = celebrate({
 
 router.post(
   '/notifications',
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    limit: 3, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+    standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+    // store: ... , // Redis, Memcached, etc. See below.
+  }),
   ensureAuth,
   notificationValidation,
   async (req, res) => {

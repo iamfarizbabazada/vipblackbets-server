@@ -41,11 +41,11 @@ const userSchema = new mongoose.Schema({
 
 class User {
   static checkEmailVerified (email) {
-    return this.exists({ email, emailVerified: true })
+    return this.findOne({ email, emailVerified: true })
   }
 
   static checkDeleted (email) {
-    return this.exists({ email, deleted: true })
+    return this.findOne({ email, deleted: true })
   }
 
   updateExpoToken(token) {

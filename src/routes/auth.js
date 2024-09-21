@@ -1,5 +1,6 @@
 const createError = require('http-errors')
 const router = require('express-promise-router')()
+const rateLimit = require('express-rate-limit')
 const { celebrate, Joi, Segments } = require('celebrate')
 const passport = require('passport')
 const Otp = require('../utils/crypto').Otp
@@ -13,10 +14,12 @@ const successRedirect = '/api/auth/authenticated'
 const failureRedirect = '/api/auth/unauthorized'
 
 async function isEmailVerified (req, res, next) {
-  const isVerified = await User.checkEmailVerified(req.body.email)
+  const user = await User.checkEmailVerified(req.body.email)
 
-  if (IS_PRODUCTION && !isVerified) {
-    throw createError(403, 'Please make sure you have verified your email.')
+  if (IS_PRODUCTION && !user.emailVerified) {
+    const err = createError(403, 'Please make sure you have verified your email.')
+    err.action = 'VERIFICATION'
+    throw err
   }
 
   next()
@@ -43,6 +46,13 @@ const registerUserValidator = celebrate({
 
 router.post(
   '/register',
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    limit: 5, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+    standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+    // store: ... , // Redis, Memcached, etc. See below.
+  }),
   ensureNoActiveSession,
   registerUserValidator,
   async (req, res) => {
@@ -60,6 +70,13 @@ router.post(
 
 router.post(
   '/login',
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    limit: 5, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+    standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+    // store: ... , // Redis, Memcached, etc. See below.
+  }),
   ensureNoActiveSession,
   isAccountDeleted,
   isEmailVerified,
@@ -80,6 +97,13 @@ router.get('/unauthorized', async (req, res) => {
 
 router.post(
   '/otp/reset',
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    limit: 5, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+    standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+    // store: ... , // Redis, Memcached, etc. See below.
+  }),
   ensureNoActiveSession,
   async (req, res) => {
     const { email } = req.body
@@ -93,12 +117,19 @@ router.post(
     const { rawOtp, expiredAt } = await OtpToken.generate(user)  
     console.log(rawOtp)
 
-    await sendOtp(user.email, rawOtp, expiredAt)
-    res.json({ success: true })
+    // await sendOtp(user.email, rawOtp, expiredAt)
+    res.json({ success: true, rawOtp })
 })
 
 router.post(
   '/otp/verify',
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    limit: 5, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+    standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+    // store: ... , // Redis, Memcached, etc. See below.
+  }),
   ensureNoActiveSession,
   async (req, res) => {
     const { otp, email } = req.body
@@ -128,6 +159,13 @@ router.post(
 
 router.post(
   '/password/request',
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    limit: 3, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+    standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+    // store: ... , // Redis, Memcached, etc. See below.
+  }),
   ensureNoActiveSession,
   celebrate({
     [Segments.BODY]: Joi.object().keys({
@@ -157,6 +195,13 @@ router.post(
 // Route to reset the password
 router.post(
   '/password/reset',
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    limit: 5, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+    standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+    // store: ... , // Redis, Memcached, etc. See below.
+  }),
   ensureNoActiveSession,
   celebrate({
     [Segments.BODY]: Joi.object().keys({

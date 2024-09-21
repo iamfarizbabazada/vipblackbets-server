@@ -49,7 +49,7 @@ passport.use(User.createStrategy())
 passport.serializeUser(User.serializeUser())
 passport.deserializeUser(User.deserializeUser())
 
-app.use(morgan('dev', {
+app.use(morgan('combined', {
   stream: {
     write: (msg) => logger.info(msg.trim())
   }
@@ -102,22 +102,25 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500)
   res.send(
     req.app.get('env') === 'development'
-      ? { stack: err.stack, message: err.message }
-      : { message: err.message }
+      ? { stack: err.stack, message: err.message, action: err.action }
+      : { message: err.message, action: err.action }
   )
 })
 
 
 async function seed() {
-  if(await User.countDocuments({role: 'ADMIN'}) > 1) return
-
-  const newUser = new User({
+  const credentials = {
     name: "admin",
     email: "admin@admin.com",
     role: "ADMIN"
-  })
+  }
 
-  await User.register(newUser, "password123")
+  const user = await User.findOne(credentials)
+
+  if(!user) {
+    const newUser = new User(credentials)
+    await User.register(newUser, "password123")
+  }
 }
 
 seed()

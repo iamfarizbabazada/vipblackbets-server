@@ -8,6 +8,7 @@ const Order = require('../models/order')
 const { ensureRole } = require('../middlewares/auth')
 const upload = require('../middlewares/upload')
 const { validateObjectId, bulkValidateObjectId } = require('../utils/validate-objectid')
+const { sendPushNotification } = require('../utils/expo')
 
 const paginationValidator = celebrate({
   [Segments.QUERY]: Joi.object().keys({
@@ -102,6 +103,8 @@ router.patch(
     if (order.status === 'COMPLETED') throw createError(400)
 
     await order.complete()
+    sendPushNotification({title: 'Qəbul olundu!', body: 'Sifariş qəbul olundu!', pushToken: order.user.expoPushToken})
+
     res.sendStatus(200)
 })
 
@@ -116,6 +119,8 @@ router.patch(
     if (order.status === 'REJECTED') throw createError(400)
 
     await order.reject()
+    sendPushNotification({title: 'Qəbul olunmadı!', body: 'Sifariş qəbul olunmadı!', pushToken: order.user.expoPushToken})
+
     res.sendStatus(200)
 })
 
