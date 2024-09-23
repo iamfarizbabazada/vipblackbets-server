@@ -91,7 +91,7 @@ router.get('/authenticated', async (req, res) => {
 })
 
 router.get('/unauthorized', async (req, res) => {
-  res.json(createError.Unauthorized())
+  throw createError.Unauthorized("Şifrə və ya E-poçt ünvanı yanlışdır!")
 })
 
 
