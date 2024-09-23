@@ -38,6 +38,8 @@ class Mailer {
   }
 }
 
+console.log(MAILER_PASSWORD)
+
 const transporter = nodemailer.createTransport({
   host: MAILER_HOST,
   port: 465, // Replace with your SMTP port (e.g., 465 for SSL, 587 for TLS)

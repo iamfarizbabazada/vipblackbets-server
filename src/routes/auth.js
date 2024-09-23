@@ -6,7 +6,7 @@ const passport = require('passport')
 const Otp = require('../utils/crypto').Otp
 const User = require('../models/user')
 const OtpToken = require('../models/otp.token')
-const { sendOtp } = require('../utils/mailer')
+const mailer = require('../utils/mailer')
 const { IS_PRODUCTION } = require('../configs/env')
 const { ensureAuth, ensureNoActiveSession } = require('../middlewares/auth')
 
@@ -62,7 +62,7 @@ router.post(
     const { rawOtp, expiredAt } = await OtpToken.generate(user)  
     console.log(rawOtp)
 
-    await sendOtp(user.email, rawOtp, expiredAt)
+    await mailer.sendOtp(user.email, rawOtp, expiredAt)
     res.sendStatus(200)
 })
 
@@ -117,7 +117,7 @@ router.post(
     const { rawOtp, expiredAt } = await OtpToken.generate(user)  
     console.log(rawOtp)
 
-    // await sendOtp(user.email, rawOtp, expiredAt)
+    await mailer.sendOtp(user.email, rawOtp, expiredAt)
     res.json({ success: true, rawOtp })
 })
 
@@ -187,7 +187,7 @@ router.post(
     const resetToken = await OtpToken.generate(user);  
     console.log(resetToken.rawOtp);
 
-    await sendOtp(user.email, resetToken.rawOtp, resetToken.expiredAt);
+    await mailer.sendOtp(user.email, resetToken.rawOtp, resetToken.expiredAt);
     res.sendStatus(200)
 })
 
