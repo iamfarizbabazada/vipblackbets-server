@@ -16,7 +16,7 @@ const failureRedirect = '/api/auth/unauthorized'
 async function isEmailVerified (req, res, next) {
   const user = await User.checkEmailVerified(req.body.email)
 
-  if (IS_PRODUCTION && !user.emailVerified) {
+  if (IS_PRODUCTION && !user?.emailVerified) {
     const err = createError(403, 'Please make sure you have verified your email.')
     err.action = 'VERIFICATION'
     throw err
