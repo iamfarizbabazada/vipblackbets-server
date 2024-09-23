@@ -62,7 +62,7 @@ router.post(
     const { rawOtp, expiredAt } = await OtpToken.generate(user)  
     console.log(rawOtp)
 
-    await sendOtp(user.email, rawOtp, expiredAt)
+    // await sendOtp(user.email, rawOtp, expiredAt)
     res.sendStatus(200)
 })
 

@@ -58,7 +58,7 @@ router.patch(
   '/change-password',
   rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    limit: 3, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+    // limit: 3, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
     standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
     legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
     // store: ... , // Redis, Memcached, etc. See below.
@@ -66,16 +66,15 @@ router.patch(
   ensureAuth,
   changePasswordValidator,
   async (req, res) => {
-    const user = req.user
-    user.changePassword(req.body.oldPassword, req.body.newPassword, async (err) => {
-      console.log(err)
-      if(!err) {
-        await user.save()
-        res.sendStatus(200)
-      } else {
-        res.sendStatus(401)
-      }
-    })
+    const user = req.user;
+    try {
+      await user.changePassword(req.body.oldPassword, req.body.newPassword);
+      await user.save();
+      res.sendStatus(200);
+    } catch (err) {
+      console.log(err);
+      res.status(401).json({ error: 'Şifre değişikliği başarısız.' });
+    }
   })
 
 router.patch(

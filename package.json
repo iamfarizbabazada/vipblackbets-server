@@ -21,6 +21,7 @@
   "dependencies": {
     "celebrate": "^15.0.3",
     "compression": "^1.7.4",
+    "connect-mongo": "^5.1.0",
     "connect-redis": "^7.1.0",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
