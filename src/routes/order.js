@@ -63,7 +63,9 @@ router.post(
   upload.single('file'),
   async (req, res) => {
     const newOrder = new Order(req.body)
-    newOrder.file = req.file.filename
+    if(req.file) {
+      newOrder.file = req.file.filename
+    }
     newOrder.user = req.user
     await newOrder.save()
 
