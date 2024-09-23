@@ -7,8 +7,8 @@ const {
 } = require('../configs/env')
 
 const session = require('express-session')
-const redisClient = require('../redis')
-const RedisStore = require('connect-redis').default
+// const redisClient = require('../redis')
+// const RedisStore = require('connect-redis').default
 const MongoStore = require('connect-mongo')
 const connection = require('../db')
 
