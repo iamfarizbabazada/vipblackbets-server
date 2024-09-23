@@ -41,7 +41,7 @@ const userSchema = new mongoose.Schema({
 
 class User {
   static checkEmailVerified (email) {
-    return this.findOne({ email, emailVerified: true })
+    return this.findOne({ email })
   }
 
   static checkDeleted (email) {
