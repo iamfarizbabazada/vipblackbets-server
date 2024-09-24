@@ -152,7 +152,13 @@ router.get(
   '/support',
   ensureAuth,
   async (req, res) => {
-    const admins = await User.find({ role: 'ADMIN' })
+    const filter = {}
+
+    if (req.query.name) {
+      filter.name = new RegExp(req.query.name, 'i')
+    }
+
+    const admins = await User.find({ role: 'ADMIN', ...filter })
     res.json(admins)
   })
 

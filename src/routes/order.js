@@ -49,7 +49,6 @@ router.get(
 
 const createOrderValidator = celebrate({
   [Segments.BODY]: Joi.object().keys({
-    status: Joi.string().valid('PENDING').default('PENDING').forbidden(),
     amount: Joi.number().min(0),
     paymentType: Joi.string(),
     provider: Joi.string()
@@ -62,6 +61,7 @@ router.post(
   createOrderValidator,
   upload.single('file'),
   async (req, res) => {
+    console.log(req.body, req.file)
     const newOrder = new Order(req.body)
     if(req.file) {
       newOrder.file = req.file.filename

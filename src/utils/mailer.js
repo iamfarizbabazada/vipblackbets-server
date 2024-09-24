@@ -38,7 +38,6 @@ class Mailer {
   }
 }
 
-console.log(MAILER_PASSWORD)
 
 const transporter = nodemailer.createTransport({
   host: MAILER_HOST,
