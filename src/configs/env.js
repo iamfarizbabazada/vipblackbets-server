@@ -79,6 +79,7 @@ const envValidationSchema = Joi.object()
     MAILER_PASSWORD: Joi.string()
       .required()
       .description('The password for the mail server account used for sending emails. This credential allows authentication for sending emails.'),
+    SWAGGER: Joi.string().default('true')
   }).unknown()
 
 

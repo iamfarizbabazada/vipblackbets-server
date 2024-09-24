@@ -1,5 +1,6 @@
 const {
   IS_PRODUCTION,
+  SWAGGER,
 } = require('./configs/env')
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpecs = require('./configs/swagger');
@@ -78,7 +79,7 @@ app.get('/health', (req, res) => {
   res.sendStatus(200)
 })
 
-if(!IS_PRODUCTION) {
+if(SWAGGER == 'true') {
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 }
 
