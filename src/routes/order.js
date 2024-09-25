@@ -14,6 +14,7 @@ const paginationValidator = celebrate({
   [Segments.QUERY]: Joi.object().keys({
     page: Joi.number().positive().integer().default(1),
     limit: Joi.number().positive().integer().default(20),
+    status: Joi.string().optional(),
   })
 })
 
@@ -22,12 +23,18 @@ router.get(
   ensureRole(['ADMIN']),
   paginationValidator,
   async (req, res) => {
-    const { page = 1, limit = 20 } = req.query
+    const { page = 1, limit = 20, status } = req.query
     const skip = (page - 1) * limit
 
-    const total = await Order.countDocuments()
+    const filter = {}
+
+    if(status) {
+      filter.status = status
+    }
+
+    const total = await Order.countDocuments(filter)
   
-    const orders = await Order.find()
+    const orders = await Order.find(filter)
       .limit(limit)
       .skip(skip)
       .sort({ createdAt: 'desc' })

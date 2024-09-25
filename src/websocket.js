@@ -48,22 +48,31 @@ function initSocketIO(httpServer) {
       socket.emit('joined room', 'successfully Joined room')
   })
 
-
   socket.on('chat history', async () => {
+    await Message.updateMany(
+      { 
+          receiver: socket.request.user.id, 
+          sender: socket.receiverId, 
+          read: false // Only update if they are currently unread
+      },
+      { $set: { read: true } } // Set read status to true
+  );
+
+
     const messages = await Message.find({
         $or: [
             { sender: socket.request.user, receiver: socket.receiverId },
             { receiver: socket.request.user, sender: socket.receiverId }
-        ],
-        createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+        ]
     })
-
-    socket.emit('messages', messages)
-    logger.info(`Socket received messages by user: ${socket.request.user.id}`)
-  })
+  
+  
+    socket.emit('messages', messages);
+    logger.info(`Socket received messages by user: ${socket.request.user.id}`);
+  });
 
   socket.on('chat message', async (message) => {
-    console.log(socket.roomId)
+    console.log(socket.receiverId, message, socket.request.user)
     if (socket.roomId) {
         const newMessage = new Message({
             sender: socket.request.user,

@@ -36,8 +36,8 @@ const sessionMiddleware = session({
   secret: SESSION_SECRET,
   cookie: {
     maxAge: COOKIE_MAX_AGE,
-    sameSite: IS_PRODUCTION && 'none',
-    secure: IS_PRODUCTION
+    sameSite: IS_PRODUCTION && 'strict',
+    secure: IS_PRODUCTION,
   },
   resave: false,
   saveUninitialized: false

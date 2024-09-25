@@ -15,6 +15,7 @@ const sanitize = require('express-mongo-sanitize').sanitize
 const compression = require('compression')
 const { errors } = require('celebrate')
 const { sessionMiddleware } = require('./middlewares/session');
+const lusca = require('lusca');
 const cookieParser = require('cookie-parser')
 
 const passport = require('passport')
@@ -30,13 +31,17 @@ const app = express()
 
 app.use(helmet())
 app.use(compression())
-app.use(cors())
+app.use(cors({credentials: true, origin: true}))
 
 app.set('trust proxy', 1)
 
 
 
 app.use(sessionMiddleware)
+
+app.use(lusca.xframe('SAMEORIGIN'));
+app.use(lusca.xssProtection(true));
+app.disable('x-powered-by');
 
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
@@ -113,12 +118,14 @@ async function seed() {
   const credentials = {
     name: "admin",
     email: "admin@admin.com",
-    role: "ADMIN"
+    role: "ADMIN",
+    emailVerified: true,
   }
 
   const user = await User.findOne(credentials)
 
   if(!user) {
+    credentials.emailVerifiedAt = Date.now() 
     const newUser = new User(credentials)
     await User.register(newUser, "password123")
   }

@@ -4,6 +4,7 @@ const { celebrate, Joi, Segments } = require('celebrate')
 const User = require('../models/user')
 const Order = require('../models/order')
 const Notification = require('../models/notification')
+const Message = require('../models/message')
 const { ensureAuth } = require('../middlewares/auth')
 const upload = require('../middlewares/upload')
 
@@ -124,6 +125,52 @@ router.get(
     })
   
 
+    router.get(
+      '/contacts',
+      ensureAuth,
+      async (req, res) => {
+        const filter = {};
+    
+        if (req.query.name) {
+          filter.name = new RegExp(req.query.name, 'i');
+        }
+    
+        // Admin kullanıcılarını getir
+        const admins = await User.find({ role: 'USER', ...filter });
+    
+        // Her adminin en son mesajını bul
+        const adminsWithLastMessage = await Promise.all(admins.map(async (admin) => {
+          const lastMessage = await Message.findOne({
+            $or: [
+              { sender: admin },
+              { receiver: admin }
+            ]
+          }).sort({ timestamp: -1 });
+    
+          return {
+            ...admin.toObject(),
+            lastMessage: lastMessage ? lastMessage.text : null,
+            isReaded: lastMessage ? lastMessage.read : 'NO'
+          };
+        }));
+    
+        // Sıralama: önce isReaded false, sonra true, en sonda 'NO'
+        const sortedAdmins = adminsWithLastMessage.sort((a, b) => {
+          const order = {
+            false: 1,
+            true: 2,
+            'NO': 3
+          };
+          return (order[a.isReaded] || 3) - (order[b.isReaded] || 3);
+        });
+    
+        res.json(sortedAdmins);
+      }
+    );
+    
+    
+
+
 
 router.post(
   '/notifications',
@@ -152,14 +199,33 @@ router.get(
   '/support',
   ensureAuth,
   async (req, res) => {
-    const filter = {}
+    const filter = {};
 
     if (req.query.name) {
-      filter.name = new RegExp(req.query.name, 'i')
+      filter.name = new RegExp(req.query.name, 'i');
     }
 
-    const admins = await User.find({ role: 'ADMIN', ...filter })
-    res.json(admins)
-  })
+    // Admin kullanıcılarını getir
+    const admins = await User.find({ role: 'ADMIN', ...filter });
+
+    // Her adminin en son mesajını bul
+    const adminsWithLastMessage = await Promise.all(admins.map(async (admin) => {
+      const lastMessage = await Message.findOne({
+        $or: [
+          { sender: admin },
+          { receiver: admin }
+        ]
+      }).sort({ createdAt: -1 });
+
+      return {
+        ...admin.toObject(),
+        lastMessage: lastMessage ? lastMessage.text : null,
+        isReaded: lastMessage ? lastMessage.read : false
+      };
+    }))
+
+    res.json(adminsWithLastMessage);
+  }
+);
 
 module.exports = router
