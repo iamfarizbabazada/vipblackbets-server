@@ -28,20 +28,20 @@ const connection = require('../db')
 const sessionMiddleware = session({
   store: MongoStore.create({
     // mongooseConnection: connection,
-    // stringify: false
     mongoUrl: MONGODB_CONNECTION_STRING,
     dbName: DB_NAME,
-    stringify: false
+    stringify: false,
   }),
   secret: SESSION_SECRET,
   cookie: {
     maxAge: COOKIE_MAX_AGE,
-    sameSite: IS_PRODUCTION && 'strict',
+    sameSite: IS_PRODUCTION && 'none',
     secure: IS_PRODUCTION,
   },
   resave: false,
   saveUninitialized: false
 })
+
 
 module.exports = {
   sessionMiddleware

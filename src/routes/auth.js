@@ -27,7 +27,16 @@ async function isEmailVerified (req, res, next) {
 
 async function isAccountDeleted (req, res, next) {
   const user = await User.findOne({email: req.body.email})
-  if (!user || user.deleted) {
+  if (!user) {
+    throw createError(404)
+  }
+
+  next()
+}
+
+async function isAdminLogin (req, res, next) {
+  const user = await User.findOne({email: req.body.email, role: 'ADMIN'})
+  if (!user) {
     throw createError(404)
   }
 
@@ -72,7 +81,7 @@ router.post(
   '/login',
   rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    limit: 500, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+    limit: 5, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
     standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
     legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
     // store: ... , // Redis, Memcached, etc. See below.
@@ -85,36 +94,23 @@ router.post(
     failureRedirect,
 }))
 
+router.post(
+  '/admin/login',
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    limit: 5, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+    standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+    // store: ... , // Redis, Memcached, etc. See below.
+  }),
+  ensureNoActiveSession,
+  isAccountDeleted,
+  isAdminLogin,
+  passport.authenticate('local', {
+    successRedirect,
+    failureRedirect,
+}))
 
-// router.post(
-//   '/login',
-//   rateLimit({
-//     windowMs: 15 * 60 * 1000, // 15 minutes
-//     limit: 500, // Limit each IP to 500 requests per `window` (here, per 15 minutes).
-//     standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
-//     legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
-//   }),
-//   ensureNoActiveSession,
-//   isAccountDeleted,
-//   isEmailVerified,
-//   (req, res, next) => {
-//     passport.authenticate('local', (err, user, info) => {
-//       if (err) {
-//         return res.status(500).json({ error: 'Internal Server Error' });
-//       }
-//       if (!user) {
-//         return res.status(401).json({ error: 'Invalid credentials' });
-//       }
-//       req.logIn(user, (err) => {
-//         if (err) {
-//           return res.status(500).json({ error: 'Login failed' });
-//         }
-//         // Başarılı girişte kullanıcı bilgilerini döndür
-//         return res.status(200).json({ message: 'Login successful', user });
-//       });
-//     })(req, res, next);
-//   }
-// );
 
 router.get('/authenticated', async (req, res) => {
   console.log(req.user)

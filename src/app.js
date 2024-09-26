@@ -1,6 +1,7 @@
 const {
   IS_PRODUCTION,
   SWAGGER,
+  SESSION_SECRET,
 } = require('./configs/env')
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpecs = require('./configs/swagger');
@@ -35,7 +36,11 @@ app.use(cors({credentials: true, origin: true}))
 
 app.set('trust proxy', 1)
 
+app.use(express.static(path.join(__dirname, '../public')));
 
+app.use(cookieParser(SESSION_SECRET))
+app.use(express.json())
+app.use(express.urlencoded({ extended: false }))
 
 app.use(sessionMiddleware)
 
@@ -45,6 +50,7 @@ app.disable('x-powered-by');
 
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
+
 
 
 app.use(passport.initialize())
@@ -62,10 +68,6 @@ app.use(morgan('combined', {
 }))
 
 
-app.use(express.json())
-app.use(express.urlencoded({ extended: false }))
-app.use(cookieParser())
-
 app.all('*', (req, res, next) => {
   req.body = sanitize(req.body)
   req.headers = sanitize(req.headers)
@@ -74,7 +76,6 @@ app.all('*', (req, res, next) => {
   next()
 })
 
-app.use(express.static(path.join(__dirname, '../public')));
 
 app.get('/', (req, res) => {
   res.redirect('/health')
