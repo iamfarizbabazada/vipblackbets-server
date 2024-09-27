@@ -112,7 +112,7 @@ router.patch(
     if (order.status === 'COMPLETED') throw createError(400)
 
     await order.complete()
-    sendPushNotification({title: 'Qəbul olundu!', body: 'Sifariş qəbul olundu!', pushToken: order.user.expoPushToken})
+    sendPushNotification({title: 'Qəbul olundu!', body: 'Sifariş qəbul olundu!', pushToken: order.user.expoPushToken, data: {id: order._id}})
 
     res.sendStatus(200)
 })
@@ -128,7 +128,7 @@ router.patch(
     if (order.status === 'REJECTED') throw createError(400)
 
     await order.reject()
-    sendPushNotification({title: 'Qəbul olunmadı!', body: 'Sifariş qəbul olunmadı!', pushToken: order.user.expoPushToken})
+    sendPushNotification({title: 'Qəbul olunmadı!', body: 'Sifariş qəbul olunmadı!', pushToken: order.user.expoPushToken, data: {id: order._id}})
 
     res.sendStatus(200)
 })

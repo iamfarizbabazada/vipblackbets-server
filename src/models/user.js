@@ -112,7 +112,7 @@ userSchema.loadClass(User)
 
 
 userSchema.virtual('avatarURL').get(function() {
-  if(!this.avatar) return false
+  if(!this.avatar) return null
   return `${BASE_URL}/uploads/${this.avatar}`;
 });
 

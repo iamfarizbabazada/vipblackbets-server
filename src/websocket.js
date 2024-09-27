@@ -1,3 +1,6 @@
+const fs = require('fs')
+const path = require('path')
+
 const { Server } = require('socket.io')
 const { sessionMiddleware } = require('./middlewares/session')
 const passport = require('passport')
@@ -58,13 +61,12 @@ function initSocketIO(httpServer) {
       { $set: { read: true } } // Set read status to true
   );
 
-
     const messages = await Message.find({
         $or: [
             { sender: socket.request.user, receiver: socket.receiverId },
             { receiver: socket.request.user, sender: socket.receiverId }
         ]
-    })
+    }).sort({createdAt: -1})
   
   
     socket.emit('messages', messages);
@@ -80,12 +82,61 @@ function initSocketIO(httpServer) {
             text: message
         })
 
-        const savedMessage = await newMessage.save()
+        try {
+          const savedMessage = await newMessage.save()
+          io.to(socket.roomId).emit('chat new', savedMessage)
+          logger.info(`Socket sent message: ${message}, user: ${socket.request.user.id} received by room: ${socket.roomId}`)
+        } catch(err) {
+          logger.error(err)
+        }
 
-        io.to(socket.roomId).emit('chat new', savedMessage)
-        logger.info(`Socket sent message: ${message}, user: ${socket.request.user.id} received by room: ${socket.roomId}`)
     }
 })
+
+socket.on('upload file', async (fileData) => {
+  if (socket.roomId) {
+      const base64Data = fileData.split(';base64,').pop();
+
+      // Dosya adını belirleyin ve dosya yolu oluşturun
+      const fileName = `image_${Date.now()}.png`;
+      const filePath = path.join(__dirname, '../public/uploads', fileName);
+      
+      // Klasörü oluşturun, eğer yoksa
+      fs.existsSync(path.join(__dirname, '../public/uploads')) || fs.mkdirSync(path.join(__dirname, '../public/uploads'), { recursive: true });
+
+      // Dosyayı diske kaydedin
+      fs.writeFile(filePath, base64Data, { encoding: 'base64' }, async (err) => {
+          if (err) {
+              console.error('Dosya kaydedilirken bir hata oluştu:', err);
+              return;
+          }
+
+          // Dosya başarıyla kaydedildikten sonra
+          console.log(fileName + ' public/uploads klasörüne yüklendi');
+
+          // Kullanıcı mesajını oluşturun ve kaydedin
+          const newMessage = new Message({
+              sender: socket.request.user,
+              receiver: socket.receiverId,
+              text: 'Fayl göndərildi.',
+              file: fileName
+          });
+
+          try {
+          const savedMessage = await newMessage.save();
+          // Mesajı ilgili odaya gönderin
+          io.to(socket.roomId).emit('chat new', savedMessage);
+          logger.info(`Socket sent message: ${fileName}, user: ${socket.request.user} received by room: ${socket.roomId}`);
+          } catch(err) {
+            console.error(err)
+          }
+
+          // Dosyayı silmek isterseniz, aşağıdaki satırı ekleyebilirsiniz:
+          // fs.unlinkSync(filePath);
+      });
+  }
+});
+
 
 socket.on('get messages', async () => {
   const messages = await Message.find({ receiver: socket.request.user }).populate('sender', 'receiver')
