@@ -10,7 +10,7 @@ const notificationSchema = new mongoose.Schema({
   status: {
     type: String,
     enum: ['INFO', 'WARN', 'ERR', 'SUCCESS'], // Define types of notifications
-    required: true
+    default: 'INFO'
   },
   title: {
     type: String,
@@ -20,6 +20,10 @@ const notificationSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  read: {
+    type: Boolean,
+    default: false
+  }
 }, {
   timestamps: true
 });

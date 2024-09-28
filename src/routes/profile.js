@@ -7,6 +7,7 @@ const Notification = require('../models/notification')
 const Message = require('../models/message')
 const { ensureAuth } = require('../middlewares/auth')
 const upload = require('../middlewares/upload')
+const {sendPushNotification} = require('../utils/expo')
 
 router.get(
   '/',

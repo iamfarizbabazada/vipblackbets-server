@@ -5,6 +5,7 @@ const { celebrate, Joi, Segments } = require('celebrate')
 const { NEWSLETTER_MAIL } = require('../configs/event-names')
 const User = require('../models/user')
 const Order = require('../models/order')
+const Notification = require('../models/notification')
 const { ensureRole } = require('../middlewares/auth')
 const upload = require('../middlewares/upload')
 const { validateObjectId, bulkValidateObjectId } = require('../utils/validate-objectid')
@@ -112,7 +113,7 @@ router.patch(
     if (order.status === 'COMPLETED') throw createError(400)
 
     await order.complete()
-    sendPushNotification({title: 'Qəbul olundu!', body: 'Sifariş qəbul olundu!', pushToken: order.user.expoPushToken, data: {id: order._id}})
+    sendPushNotification({title: 'Qəbul olundu!', body: 'Sifariş qəbul olundu!', pushToken: order.user.expoPushToken, data: {orderId: order._id, receiver: order.user}})
 
     res.sendStatus(200)
 })
@@ -128,7 +129,7 @@ router.patch(
     if (order.status === 'REJECTED') throw createError(400)
 
     await order.reject()
-    sendPushNotification({title: 'Qəbul olunmadı!', body: 'Sifariş qəbul olunmadı!', pushToken: order.user.expoPushToken, data: {id: order._id}})
+    sendPushNotification({title: 'Qəbul olunmadı!', body: 'Sifariş qəbul olunmadı!', pushToken: order.user.expoPushToken, data: {orderId: order._id, receiver: order.user}})
 
     res.sendStatus(200)
 })
@@ -146,5 +147,26 @@ router.delete(
 
     res.sendStatus(200)
   })
+
+router.get(
+'/notifications',
+ensureRole(['ADMIN']),
+async (req, res) => {
+  res.json(await Notification.find({ read: false }))
+})
+
+router.patch(
+  '/notifications/:id/read',
+  ensureRole(['ADMIN']),
+  async (req, res) => {
+    const {id} = req.params
+
+    const notification = await Notification.findById(id)
+
+    notification.read = true
+    await notification.save()
+
+    res.sendStatus(200)
+})
 
 module.exports = router

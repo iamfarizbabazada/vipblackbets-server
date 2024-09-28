@@ -45,7 +45,7 @@ const sendPushNotification = async ({ pushToken = '', title, sticky = false, bod
         }
     } catch (err) {
         console.error('Error sending push notification:', err);
-        throw new BadRequestError('Error sending push notification');
+        throw new BadRequest('Error sending push notification');
     }
 };
 
@@ -80,7 +80,7 @@ const sendPushNotificationBulk = async ({ pushTokens, title, status, body, data 
         }
     } catch (err) {
         console.error('Error sending bulk push notifications:', err);
-        throw new BadRequestError('Error sending bulk push notifications');
+        throw new BadRequest('Error sending bulk push notifications');
     }
 };
 

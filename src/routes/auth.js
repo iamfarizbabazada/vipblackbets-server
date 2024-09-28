@@ -69,7 +69,6 @@ router.post(
     const user = await User.register(newUser, req.body.password)
 
     const { rawOtp, expiredAt } = await OtpToken.generate(user)  
-    console.log(rawOtp)
 
     await mailer.sendOtp(user.email, rawOtp, expiredAt)
     res.sendStatus(200)
@@ -142,7 +141,6 @@ router.post(
     if(!oldToken.checkIsExpired()) return res.sendStatus(400)
 
     const { rawOtp, expiredAt } = await OtpToken.generate(user)  
-    console.log(rawOtp)
 
     await mailer.sendOtp(user.email, rawOtp, expiredAt)
     res.json({ success: true, rawOtp })
@@ -208,11 +206,10 @@ router.post(
     }
 
     const oldToken = await OtpToken.findByUser(user)
-    if(!oldToken.checkIsExpired()) return res.sendStatus(400)
+    if(oldToken && !oldToken.checkIsExpired()) throw createError.BadRequest('Otp is not expired')
 
 
     const resetToken = await OtpToken.generate(user);  
-    console.log(resetToken.rawOtp);
 
     await mailer.sendOtp(user.email, resetToken.rawOtp, resetToken.expiredAt);
     res.sendStatus(200)
@@ -248,21 +245,19 @@ router.post(
     const otpToken = await OtpToken.findByUser(user)
     
     if(!otpToken) {
-      return res.json(createError.NotFound())
+      throw createError.NotFound()
     } 
     
     else if(!otpToken.verify(otp)) {
-      return res.json(createError.BadRequest('Otp incorrect!'))
+      throw createError.BadRequest('Otp incorrect!')
     }
 
     else if (otpToken.checkIsExpired()) {
-      return res.json(createError.BadRequest('Otp expired!'))
+      throw createError.BadRequest('Otp expired!')
     }
 
-
     await user.setPassword(newPassword)
-
-
+    await user.save()
     res.sendStatus(200)
 })
 
