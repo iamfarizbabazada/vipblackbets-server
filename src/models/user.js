@@ -90,7 +90,7 @@ class User {
 
 userSchema.plugin(passportLocalMongoose, {
   usernameField: 'email',
-  lastLoginField: true
+  lastLoginField: true,
 })
 
 userSchema.plugin(mongooseAutopopulate)

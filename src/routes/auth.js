@@ -47,7 +47,7 @@ const registerUserValidator = celebrate({
   [Segments.BODY]: Joi.object().keys({
     user: Joi.object().keys({
       name: Joi.string().min(3).max(60).trim().required(),
-      email: Joi.string().email().required(),
+      email: Joi.string().email().lowercase().required(),
     }),
     password: Joi.string().min(8).required()
   })
