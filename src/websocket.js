@@ -66,9 +66,9 @@ function initSocketIO(httpServer) {
             { sender: socket.request.user, receiver: socket.receiverId },
             { receiver: socket.request.user, sender: socket.receiverId }
         ]
-    }).sort({createdAt: -1})
+    }).sort({createdAt: -1}).populate('sender').populate('receiver')
   
-  
+    console.log(messages)
     socket.emit('messages', messages);
     logger.info(`Socket received messages by user: ${socket.request.user.id}`);
   });
@@ -84,6 +84,8 @@ function initSocketIO(httpServer) {
 
         try {
           const savedMessage = await newMessage.save()
+          await savedMessage.populate('sender')
+          await savedMessage.populate('receiver')
           io.to(socket.roomId).emit('chat new', savedMessage)
           logger.info(`Socket sent message: ${message}, user: ${socket.request.user.id} received by room: ${socket.roomId}`)
         } catch(err) {
@@ -124,6 +126,8 @@ socket.on('upload file', async (fileData) => {
 
           try {
           const savedMessage = await newMessage.save();
+          await savedMessage.populate('sender')
+          await savedMessage.populate('receiver')
           // Mesajı ilgili odaya gönderin
           io.to(socket.roomId).emit('chat new', savedMessage);
           logger.info(`Socket sent message: ${fileName}, user: ${socket.request.user} received by room: ${socket.roomId}`);
@@ -139,7 +143,7 @@ socket.on('upload file', async (fileData) => {
 
 
 socket.on('get messages', async () => {
-  const messages = await Message.find({ receiver: socket.request.user }).populate('sender', 'receiver')
+  const messages = await Message.find({ receiver: socket.request.user }).populate('sender').populate('receiver')
   socket.emit('messages', messages)
   logger.info(`Socket received messages by user: ${socket.request.user.id}`)
 })

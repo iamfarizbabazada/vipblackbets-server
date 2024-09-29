@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
-const mongooseAutopopulate = require('mongoose-autopopulate')
 const { BASE_URL } = require('../configs/env')
+const mongooseAutoPopulate= require('mongoose-autopopulate')
 
 const messageSchema = new mongoose.Schema({
   text: {
@@ -11,13 +11,13 @@ const messageSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,
-    autopopulate: {select: ['name', 'email', 'avatar']},
+    autopopulate: {select: ['name', 'email']},
   },
   receiver: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,
-    autopopulate: {select: ['name', 'email', 'avatar']},
+    autopopulate: {select: ['name', 'email']},
   },
   file: {
     type: String,
@@ -32,7 +32,7 @@ const messageSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 })
 
-messageSchema.plugin(mongooseAutopopulate)
+messageSchema.plugin(mongooseAutoPopulate)
 
 messageSchema.virtual('fileURL').get(function() {
   if(!this.file) return null
