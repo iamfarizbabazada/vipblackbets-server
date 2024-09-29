@@ -214,10 +214,10 @@ router.get(
     const adminsWithLastMessage = await Promise.all(admins.map(async (admin) => {
       const lastMessage = await Message.findOne({
         $or: [
-          { sender: admin },
-          { receiver: admin }
+          { sender: admin, receiver: req.user },
+          { sender: req.user, receiver: admin }
         ]
-      }).sort({createdAt: 'desc'});
+      }).sort({ createdAt: 'desc' })
 
       return {
         ...admin.toObject(),
