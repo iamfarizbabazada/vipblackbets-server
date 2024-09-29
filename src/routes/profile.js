@@ -84,7 +84,7 @@ router.patch(
   '/upload/avatar/',
   rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    limit: 32131, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+    limit: 3, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
     standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
     legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
     // store: ... , // Redis, Memcached, etc. See below.
@@ -217,7 +217,7 @@ router.get(
           { sender: admin },
           { receiver: admin }
         ]
-      }).sort({ createdAt: -1 });
+      }).sort({createdAt: 'desc'});
 
       return {
         ...admin.toObject(),
