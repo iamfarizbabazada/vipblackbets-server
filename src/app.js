@@ -38,13 +38,18 @@ app.use(compression())
 app.use(cors({
   credentials: true,
   origin: function (origin, callback) {
-    Allow requests with no origin (like mobile apps or curl requests)
+    // Origin tanımlı değilse (örneğin, mobil uygulamalar veya curl istekleri) izin ver
     if (!origin) return callback(null, true);
+
+    // Eğer yerel bir istekse (localhost veya 127.0.0.1) izin ver
+    const localOrigins = ['http://localhost', 'http://127.0.0.1'];
     
-    if (ALLOWED_ORIGINS.includes(origin)) {
-      callback(null, true); // If the origin is allowed, proceed
+    if (localOrigins.includes(origin) || ALLOWED_ORIGINS.includes(origin)) {
+      // Origin izinliyse, isteğe izin ver
+      callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS')); // If not, block the request
+      // Origin izinli değilse, CORS hatası döndür
+      callback(new Error('Not allowed by CORS'));
     }
   }
 }));
