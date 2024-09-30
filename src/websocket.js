@@ -117,7 +117,7 @@ socket.on('upload file', async (fileData) => {
           const newMessage = new Message({
               sender: socket.request.user,
               receiver: socket.receiverId,
-              text: 'Fayl göndərildi.',
+              text: fileName,
               file: fileName
           });
 
