@@ -38,7 +38,7 @@ app.use(compression())
 app.use(cors({
   credentials: true,
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
+    Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
     if (ALLOWED_ORIGINS.includes(origin)) {
@@ -57,8 +57,8 @@ app.use(express.urlencoded({ extended: false }))
 
 app.use(sessionMiddleware)
 
-//app.use(lusca.xframe('SAMEORIGIN'));
-//app.use(lusca.xssProtection(true));
+app.use(lusca.xframe('SAMEORIGIN'));
+app.use(lusca.xssProtection(true));
 app.disable('x-powered-by');
 
 app.set('view engine', 'pug');
