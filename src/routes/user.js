@@ -28,7 +28,7 @@ router.get(
       filter.name = new RegExp(name, 'i')
     }
 
-    filter.role = 'ADMIN'
+    filter.role = 'USER'
 
 
     const total = await User.countDocuments(filter)
