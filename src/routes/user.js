@@ -30,12 +30,12 @@ router.get(
 
 
     const total = await User.countDocuments(filter)
-    const orders = await User.find(filter)
+    const users = await User.find(filter)
       .limit(limit)
       .skip(skip)
       .sort({ createdAt: 'desc' })
 
-    res.json({ orders, total })
+    res.json({ users, total })
 })
 
 router.get(
