@@ -79,7 +79,17 @@ const envValidationSchema = Joi.object()
     MAILER_PASSWORD: Joi.string()
       .required()
       .description('The password for the mail server account used for sending emails. This credential allows authentication for sending emails.'),
-    SWAGGER: Joi.string().default('true')
+    SWAGGER: Joi.string().default('true'),
+    ALLOWED_ORIGINS: Joi.string()
+      .custom((value, helpers) => {
+        try {
+          return value.split(','); // Split the string by commas into an array
+        } catch (err) {
+          return helpers.error('any.invalid');
+        }
+      })
+      .default('http://localhost:3000,http://localhost:8080')
+      .description('Comma-separated list of allowed origins for CORS. Default includes localhost:3000 and localhost:8080.'),
   }).unknown()
 
 

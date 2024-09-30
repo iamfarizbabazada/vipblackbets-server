@@ -1,6 +1,7 @@
 const {
   IS_PRODUCTION,
   SWAGGER,
+  ALLOWED_ORIGINS,
   SESSION_SECRET,
 } = require('./configs/env')
 const swaggerUi = require('swagger-ui-express');
@@ -32,8 +33,19 @@ const app = express()
 
 app.use(helmet())
 app.use(compression())
-app.use(cors({credentials: true, origin: true}))
-
+app.use(cors({
+  credentials: true,
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (ALLOWED_ORIGINS.includes(origin)) {
+      callback(null, true); // If the origin is allowed, proceed
+    } else {
+      callback(new Error('Not allowed by CORS')); // If not, block the request
+    }
+  }
+}));
 app.set('trust proxy', 1)
 
 app.use(express.static(path.join(__dirname, '../public')));
