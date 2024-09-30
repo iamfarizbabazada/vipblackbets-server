@@ -56,8 +56,8 @@ app.use(express.urlencoded({ extended: false }))
 
 app.use(sessionMiddleware)
 
-app.use(lusca.xframe('SAMEORIGIN'));
-app.use(lusca.xssProtection(true));
+//app.use(lusca.xframe('SAMEORIGIN'));
+//app.use(lusca.xssProtection(true));
 app.disable('x-powered-by');
 
 app.set('view engine', 'pug');
