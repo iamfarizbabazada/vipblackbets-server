@@ -28,6 +28,8 @@ router.get(
       filter.name = new RegExp(name, 'i')
     }
 
+    filter.role = 'ADMIN'
+
 
     const total = await User.countDocuments(filter)
     const users = await User.find(filter)
@@ -45,7 +47,7 @@ router.get(
     validateObjectId(req.params.id)
 
     const user = await User.findById(req.params.id)
-    if (!user) throw createError(404)
+    if (!user || user.role == 'ADMIN') throw createError(404)
 
     res.json(user)
   })
