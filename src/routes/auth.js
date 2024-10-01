@@ -66,8 +66,11 @@ router.post(
   registerUserValidator,
   async (req, res) => {
     const newUser = new User(req.body.user)
-    const user = await User.register(newUser, req.body.password)
+    await User.register(newUser, req.body.password)
 
+    const user = await User.findByUsername(newUser.email)
+
+    
     const { rawOtp, expiredAt } = await OtpToken.generate(user)  
 
     await mailer.sendOtp(user.email, rawOtp, expiredAt)
