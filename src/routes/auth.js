@@ -17,7 +17,7 @@ async function isEmailVerified (req, res, next) {
   const user = await User.checkEmailVerified(req.body.email)
 
   if (IS_PRODUCTION && !user?.emailVerified) {
-    const err = createError(403, 'Please make sure you have verified your email.')
+    const err = createError(403, 'Hesabınızı təsdiqlədiyinizdən əmin olun.')
     err.action = 'VERIFICATION'
     throw err
   }
@@ -28,7 +28,7 @@ async function isEmailVerified (req, res, next) {
 async function isAccountDeleted (req, res, next) {
   const user = await User.findOne({email: req.body.email})
   if (!user) {
-    throw createError(404)
+    throw createError.NotFound("İstifadəçi tapılmadı")
   }
 
   next()
@@ -37,7 +37,7 @@ async function isAccountDeleted (req, res, next) {
 async function isAdminLogin (req, res, next) {
   const user = await User.findOne({email: req.body.email, role: 'ADMIN'})
   if (!user) {
-    throw createError(404)
+    throw createError.NotFound("İstifadəçi tapılmadı")
   }
 
   next()
@@ -169,11 +169,11 @@ router.post(
     } 
     
     else if(!otpToken.verify(otp)) {
-      return res.json(createError.BadRequest('Otp incorrect!'))
+      return res.json(createError.BadRequest('Otp yanlışdır!'))
     }
 
     else if (otpToken.checkIsExpired()) {
-      return res.json(createError.BadRequest('Otp expired!'))
+      return res.json(createError.BadRequest('Otp müddəti bitib!'))
     }
 
     await user.verify()
@@ -202,11 +202,11 @@ router.post(
     const user = await User.findOne({ email });
     
     if (!user) {
-      return res.status(404).json(createError.NotFound('User not found.'));
+      return res.status(404).json(createError.NotFound('İstifadəçi tapılmadı'));
     }
 
     const oldToken = await OtpToken.findByUser(user)
-    if(oldToken && !oldToken.checkIsExpired()) throw createError.BadRequest('Otp is not expired')
+    if(oldToken && !oldToken.checkIsExpired()) throw createError.BadRequest('Yeni təsdiqləmə mesajini almaq üçün gözləməlisiniz')
 
 
     const resetToken = await OtpToken.generate(user);  
@@ -240,7 +240,7 @@ router.post(
     const user = await User.findOne({ email })
 
     if (!user) {
-      return res.status(404).json(createError.NotFound('User not found.'));
+      return res.status(404).json(createError.NotFound('İstifadəçi tapılmadı.'));
     }
     const otpToken = await OtpToken.findByUser(user)
     
@@ -249,11 +249,11 @@ router.post(
     } 
     
     else if(!otpToken.verify(otp)) {
-      throw createError.BadRequest('Otp incorrect!')
+      throw createError.BadRequest('Otp yanlışdır!')
     }
 
     else if (otpToken.checkIsExpired()) {
-      throw createError.BadRequest('Otp expired!')
+      throw createError.BadRequest('Otp müddəti bitib!')
     }
 
     await user.setPassword(newPassword)

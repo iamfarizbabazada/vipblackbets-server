@@ -17,7 +17,7 @@ const sanitize = require('express-mongo-sanitize').sanitize
 const compression = require('compression')
 const { errors } = require('celebrate')
 const { sessionMiddleware } = require('./middlewares/session');
-const lusca = require('lusca');
+// const lusca = require('lusca');
 const cookieParser = require('cookie-parser')
 
 const passport = require('passport')
@@ -31,7 +31,7 @@ const orderRouter = require('./routes/order');
 
 const app = express()
 
-app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.static('public'));
 
 app.use(helmet())
 app.use(compression())
@@ -117,7 +117,6 @@ app.use(function (err, req, res, next) {
   res.locals.message = err.message
   res.locals.error = req.app.get('env') === 'development' ? err : {}
 
-  logger.error(err)
 
   res.status(err.status || 500)
   res.send(
