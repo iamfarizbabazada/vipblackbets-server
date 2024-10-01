@@ -165,15 +165,15 @@ router.post(
     // Implement Promise /////////////////
 
     if(!otpToken) {
-      return res.json(createError.NotFound())
+      throw createError.NotFound()
     } 
     
     else if(!otpToken.verify(otp)) {
-      return res.json(createError.BadRequest('Otp yanlışdır!'))
+      throw createError.BadRequest('Otp yanlışdır!')
     }
 
     else if (otpToken.checkIsExpired()) {
-      return res.json(createError.BadRequest('Otp müddəti bitib!'))
+      throw createError.BadRequest('Otp müddəti bitib!')
     }
 
     await user.verify()
@@ -202,7 +202,7 @@ router.post(
     const user = await User.findOne({ email });
     
     if (!user) {
-      return res.status(404).json(createError.NotFound('İstifadəçi tapılmadı'));
+      throw createError.NotFound('İstifadəçi tapılmadı')
     }
 
     const oldToken = await OtpToken.findByUser(user)
@@ -240,7 +240,7 @@ router.post(
     const user = await User.findOne({ email })
 
     if (!user) {
-      return res.status(404).json(createError.NotFound('İstifadəçi tapılmadı.'));
+      throw createError.NotFound('İstifadəçi tapılmadı.')
     }
     const otpToken = await OtpToken.findByUser(user)
     

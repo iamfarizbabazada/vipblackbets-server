@@ -70,13 +70,12 @@ router.patch(
   async (req, res) => {
     const user = req.user;
     try {
-      console.log("[asdsadasx", req.body)
       await user.changePassword(req.body.oldPassword, req.body.newPassword);
       // await user.save();
       res.sendStatus(200);
     } catch (err) {
       console.log(err);
-      res.status(401).json({ error: 'Şifre değişikliği başarısız.' });
+      res.status(401).json({ error: 'Şifre yenilənmədi. Mövcud şifrənin doğru olduğundan əmin olun.' });
     }
   })
 
