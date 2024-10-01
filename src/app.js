@@ -38,16 +38,10 @@ app.use(compression())
 app.use(cors({
   credentials: true,
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    if (ALLOWED_ORIGINS.includes(origin)) {
-      callback(null, true); // If the origin is allowed, proceed
-    } else {
-      callback(new Error('Not allowed by CORS')); // If not, block the request
-    }
+    callback(null, true); // Tüm orijinlere izin ver
   }
 }));
+
 app.set('trust proxy', 1)
 
 
@@ -57,8 +51,8 @@ app.use(express.urlencoded({ extended: false }))
 
 app.use(sessionMiddleware)
 
-//app.use(lusca.xframe('SAMEORIGIN'));
-//app.use(lusca.xssProtection(true));
+app.use(lusca.xframe('SAMEORIGIN'));
+app.use(lusca.xssProtection(true));
 app.disable('x-powered-by');
 
 app.set('view engine', 'pug');
