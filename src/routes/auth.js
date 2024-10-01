@@ -66,11 +66,8 @@ router.post(
   registerUserValidator,
   async (req, res) => {
     const newUser = new User(req.body.user)
-    await User.register(newUser, req.body.password)
+    const user = await User.register(newUser, req.body.password)
 
-    const user = await User.findByUsername(newUser.email)
-
-    
     const { rawOtp, expiredAt } = await OtpToken.generate(user)  
 
     await mailer.sendOtp(user.email, rawOtp, expiredAt)
@@ -136,12 +133,12 @@ router.post(
   ensureNoActiveSession,
   async (req, res) => {
     const { email } = req.body
-    const user = await User.findOne({ email })
+    const user = await User.findOne({ email: email.toLowerCase() })
     
-    if(user.emailVerified) return res.sendStatus(400)
+    if(user.emailVerified) throw createError(400)
     
     const oldToken = await OtpToken.findByUser(user)
-    if(!oldToken.checkIsExpired()) return res.sendStatus(400)
+    if(!oldToken.checkIsExpired()) throw createError(400)
 
     const { rawOtp, expiredAt } = await OtpToken.generate(user)  
 
@@ -161,7 +158,7 @@ router.post(
   ensureNoActiveSession,
   async (req, res) => {
     const { otp, email } = req.body
-    const user = await User.findOne({email})
+    const user = await User.findOne({email: email.toLowerCase()})
 
     const otpToken = await OtpToken.findByUser(user)
 
@@ -202,7 +199,7 @@ router.post(
   }),
   async (req, res) => {
     const { email } = req.body;
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: email.toLowerCase() });
     
     if (!user) {
       throw createError.NotFound('İstifadəçi tapılmadı')
@@ -240,7 +237,7 @@ router.post(
   async (req, res) => {
     const { otp, email, newPassword } = req.body;
 
-    const user = await User.findOne({ email })
+    const user = await User.findOne({ email: email.toLowerCase() })
 
     if (!user) {
       throw createError.NotFound('İstifadəçi tapılmadı.')
