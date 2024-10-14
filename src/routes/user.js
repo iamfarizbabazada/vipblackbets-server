@@ -41,6 +41,31 @@ router.get(
 })
 
 router.get(
+  '/admins',
+  ensureRole('ADMIN'),
+  paginationValidator,
+  async (req, res) => {
+    const { page = 1, limit = 20, name } = req.query
+    const skip = (page - 1) * limit
+    const filter = {}
+
+    if (name) {
+      filter.name = new RegExp(name, 'i')
+    }
+
+    filter.role = 'ADMIN'
+
+
+    const total = await User.countDocuments(filter)
+    const users = await User.find(filter)
+      .limit(limit)
+      .skip(skip)
+      .sort({ createdAt: 'desc' })
+
+    res.json({ users, total })
+})
+
+router.get(
   '/:id',
   ensureRole('ADMIN'),
   async (req, res) => {

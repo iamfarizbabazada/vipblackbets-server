@@ -33,6 +33,11 @@ const userSchema = new mongoose.Schema({
   expoPushToken: {
     type: String,
   },
+  currentBalance: {
+    type: Number,
+    default: 0,
+    min: 0
+  }
 }, {
   timestamps: true,
   toJSON: { virtuals: true },
@@ -55,6 +60,20 @@ class User {
     } else {
       return Promise.reject(new Error('Token invalid!'))
     }
+  }
+
+  increaseBalance(amount) {
+    this.currentBalance = this.currentBalance + amount
+    return this.save()
+  }
+
+  decreaseBalance(amount) {
+    if(amount > this.currentBalance) {
+      throw new Error("No Balance")
+    }
+    
+    this.currentBalance = this.currentBalance - amount
+    return this.save()
   }
 
   changeAvatar (url) {

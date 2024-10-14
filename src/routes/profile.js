@@ -2,7 +2,10 @@ const router = require('express-promise-router')()
 const rateLimit = require('express-rate-limit')
 const { celebrate, Joi, Segments } = require('celebrate')
 const User = require('../models/user')
-const Order = require('../models/order')
+// const Order = require('../models/order')
+const Balance = require('../models/balance')
+const Deposit = require('../models/deposit')
+const Withdraw = require('../models/withdraw')
 const Notification = require('../models/notification')
 const Message = require('../models/message')
 const { ensureAuth } = require('../middlewares/auth')
@@ -25,12 +28,117 @@ const updateProfileValidator = celebrate({
   })
 })
 
+// router.get(
+//   '/orders',
+//   ensureAuth,
+//   async (req, res) => {
+//     const orders = await Order.find({user: req.user})
+//     res.json(orders)
+// })
+
+
 router.get(
-  '/orders',
+  '/history/balance',
   ensureAuth,
   async (req, res) => {
-    const orders = await Order.find({user: req.user})
-    res.json(orders)
+    const history = await Balance.find({user: req.user})
+    res.json(history)
+})
+
+const createBalanceValidator = celebrate({
+  [Segments.BODY]: Joi.object().keys({
+    amount: Joi.number().min(0),
+    paymentType: Joi.string(),
+  })
+})
+
+
+router.post(
+  '/pay/balance',
+  ensureRole(['USER']),
+  createBalanceValidator,
+  upload.single('file'),
+  async (req, res) => {
+    const newBalance = new Balance(req.body)
+    if(req.file) {
+      newBalance.file = req.file.filename
+    }
+
+    newBalance.user = req.user
+    await newBalance.save()
+
+    await req.user.increaseBalance(newBalance.amount)
+    res.sendStatus(200)
+})
+
+router.get(
+  '/history/deposit',
+  ensureAuth,
+  async (req, res) => {
+    const history = await Deposit.find({user: req.user})
+    res.json(history)
+})
+
+const createDepositValidator = celebrate({
+  [Segments.BODY]: Joi.object().keys({
+    amount: Joi.number().min(0),
+    provider: Joi.string(),
+    withdrawId: Joi.string()
+  })
+})
+
+router.post(
+  '/pay/deposit',
+  ensureRole(['USER']),
+  createDepositValidator,
+  // upload.single('file'),
+  async (req, res) => {
+    const newDeposit = new Deposit(req.body)
+    // if(req.file) {
+    //   newBalance.file = req.file.filename
+    // }
+
+    newDeposit.user = req.user
+    await newDeposit.save()
+
+    await req.user.decreaseBalance(newDeposit.amount)
+    res.sendStatus(200)
+})
+
+
+
+router.get(
+  '/history/withdraw',
+  ensureAuth,
+  async (req, res) => {
+    const history = await Withdraw.find({user: req.user})
+    res.json(history)
+})
+
+const createWithdrawValidator = celebrate({
+  [Segments.BODY]: Joi.object().keys({
+    amount: Joi.number().min(0),
+    paymentType: Joi.string(),
+    withdrawId: Joi.string(),
+    withdrawCode: Joi.string(),
+  })
+})
+
+router.post(
+  '/withdraw',
+  ensureRole(['USER']),
+  createWithdrawValidator,
+  // upload.single('file'),
+  async (req, res) => {
+    const newWithdraw = new Withdraw(req.body)
+    // if(req.file) {
+    //   newBalance.file = req.file.filename
+    // }
+
+    newWithdraw.user = req.user
+    await newWithdraw.save()
+
+    res.sendStatus(200)
 })
 
 router.put(
