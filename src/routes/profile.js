@@ -8,7 +8,7 @@ const Deposit = require('../models/deposit')
 const Withdraw = require('../models/withdraw')
 const Notification = require('../models/notification')
 const Message = require('../models/message')
-const { ensureAuth } = require('../middlewares/auth')
+const { ensureAuth, ensureRole } = require('../middlewares/auth')
 const upload = require('../middlewares/upload')
 const {sendPushNotification} = require('../utils/expo')
 
@@ -101,7 +101,7 @@ router.post(
     newDeposit.user = req.user
     await newDeposit.save()
 
-    await req.user.decreaseBalance(newDeposit.amount)
+    // await req.user.decreaseBalance(newDeposit.amount)
     res.sendStatus(200)
 })
 
@@ -206,9 +206,17 @@ router.patch(
     res.sendStatus(200)
   })
 
-router.delete(
-  '/',
+
+  const deleteProfileValidation = celebrate({
+    [Segments.BODY]: Joi.object().keys({
+      oldPassword: Joi.string().required()
+    })
+  })
+
+router.post(
+  '/delete',
   ensureAuth,
+  deleteProfileValidation,
   async (req, res, next) => {
     await req.user.delete()
 
@@ -216,7 +224,6 @@ router.delete(
       if (err) { return next(err) }
       res.sendStatus(200)
     })
-    res.sendStatus(200)
   })
 
 
