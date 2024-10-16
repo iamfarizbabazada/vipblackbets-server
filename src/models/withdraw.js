@@ -27,6 +27,10 @@ const withdrawSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  cardNumber: {
+    type: String,
+    required: true
+  },
   withdrawId: {
     type: String,
     required: true,

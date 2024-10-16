@@ -5,6 +5,9 @@ const { celebrate, Joi, Segments } = require('celebrate')
 const { NEWSLETTER_MAIL } = require('../configs/event-names')
 const User = require('../models/user')
 const Order = require('../models/order')
+const Balance = require('../models/balance')
+const Deposit = require('../models/deposit')
+const Withdraw = require('../models/withdraw')
 const Notification = require('../models/notification')
 const { ensureRole } = require('../middlewares/auth')
 const upload = require('../middlewares/upload')
@@ -54,6 +57,118 @@ router.get(
 
     res.json(order)
   })
+
+  router.get(
+    '/deposits',
+    ensureRole(['ADMIN']),
+    paginationValidator,
+    async (req, res) => {
+      const { page = 1, limit = 20, status } = req.query
+      const skip = (page - 1) * limit
+  
+      const filter = {}
+  
+      if(status) {
+        filter.status = status
+      }
+  
+      const total = await Deposit.countDocuments(filter)
+    
+      const orders = await Deposit.find(filter)
+        .limit(limit)
+        .skip(skip)
+        .sort({ createdAt: 'desc' })
+  
+      res.json({ deposits: orders, total })
+  })
+  
+  router.get(
+    '/deposits/:id',
+    ensureRole(['ADMIN']),
+    async (req, res) => {
+      validateObjectId(req.params.id)
+  
+      const order = await Deposit.findById(req.params.id)
+      if (!order) throw createError(404)
+  
+      res.json(order)
+    })
+
+    
+  router.get(
+    '/balances',
+    ensureRole(['ADMIN']),
+    paginationValidator,
+    async (req, res) => {
+      const { page = 1, limit = 20, status } = req.query
+      const skip = (page - 1) * limit
+  
+      const filter = {}
+  
+      if(status) {
+        filter.status = status
+      }
+  
+      const total = await Balance.countDocuments(filter)
+    
+      const orders = await Balance.find(filter)
+        .limit(limit)
+        .skip(skip)
+        .sort({ createdAt: 'desc' })
+  
+      res.json({ deposits: orders, total })
+  })
+  
+  router.get(
+    '/balances/:id',
+    ensureRole(['ADMIN']),
+    async (req, res) => {
+      validateObjectId(req.params.id)
+  
+      const order = await Balance.findById(req.params.id)
+      if (!order) throw createError(404)
+  
+      res.json(order)
+    })
+
+
+
+    router.get(
+      '/withdraws',
+      ensureRole(['ADMIN']),
+      paginationValidator,
+      async (req, res) => {
+        const { page = 1, limit = 20, status } = req.query
+        const skip = (page - 1) * limit
+    
+        const filter = {}
+    
+        if(status) {
+          filter.status = status
+        }
+    
+        const total = await Withdraw.countDocuments(filter)
+      
+        const orders = await Withdraw.find(filter)
+          .limit(limit)
+          .skip(skip)
+          .sort({ createdAt: 'desc' })
+    
+        res.json({ withdraws: orders, total })
+    })
+    
+    router.get(
+      '/withdraws/:id',
+      ensureRole(['ADMIN']),
+      async (req, res) => {
+        validateObjectId(req.params.id)
+    
+        const order = await Withdraw.findById(req.params.id)
+        if (!order) throw createError(404)
+    
+        res.json(order)
+      })
+
 
 const createOrderValidator = celebrate({
   [Segments.BODY]: Joi.object().keys({
@@ -133,6 +248,107 @@ router.patch(
 
     res.sendStatus(200)
 })
+
+
+router.patch(
+  '/balances/:id/complete',
+  ensureRole(['ADMIN']),
+  async (req, res) => {
+    validateObjectId(req.params.id)
+
+    const order = await Balance.findById(req.params.id)
+    if (!order) throw createError(404)
+    if (order.status === 'COMPLETED') throw createError(400)
+
+    await order.complete()
+    sendPushNotification({title: 'Qəbul olundu!', body: 'Balans qəbul olundu!', pushToken: order.user.expoPushToken, data: {orderId: order._id, receiver: order.user}})
+
+    res.sendStatus(200)
+})
+
+router.patch(
+  '/balances/:id/reject',
+  ensureRole(['ADMIN']),
+  async (req, res) => {
+    validateObjectId(req.params.id)
+
+    const order = await Balance.findById(req.params.id)
+    if (!order) throw createError(404)
+    if (order.status === 'REJECTED') throw createError(400)
+
+    await order.reject()
+    sendPushNotification({title: 'Qəbul olunmadı!', body: 'Balans qəbul olunmadı!', pushToken: order.user.expoPushToken, data: {orderId: order._id, receiver: order.user}})
+
+    res.sendStatus(200)
+})
+
+
+
+router.patch(
+  '/withdraws/:id/complete',
+  ensureRole(['ADMIN']),
+  async (req, res) => {
+    validateObjectId(req.params.id)
+
+    const order = await Withdraw.findById(req.params.id)
+    if (!order) throw createError(404)
+    if (order.status === 'COMPLETED') throw createError(400)
+
+    await order.complete()
+    sendPushNotification({title: 'Qəbul olundu!', body: 'Çıxarış qəbul olundu!', pushToken: order.user.expoPushToken, data: {orderId: order._id, receiver: order.user}})
+
+    res.sendStatus(200)
+})
+
+router.patch(
+  '/withdraws/:id/reject',
+  ensureRole(['ADMIN']),
+  async (req, res) => {
+    validateObjectId(req.params.id)
+
+    const order = await Withdraw.findById(req.params.id)
+    if (!order) throw createError(404)
+    if (order.status === 'REJECTED') throw createError(400)
+
+    await order.reject()
+    sendPushNotification({title: 'Qəbul olunmadı!', body: 'Çıxarış qəbul olunmadı!', pushToken: order.user.expoPushToken, data: {orderId: order._id, receiver: order.user}})
+
+    res.sendStatus(200)
+})
+
+
+router.patch(
+  '/deposits/:id/complete',
+  ensureRole(['ADMIN']),
+  async (req, res) => {
+    validateObjectId(req.params.id)
+
+    const order = await Deposit.findById(req.params.id)
+    if (!order) throw createError(404)
+    if (order.status === 'COMPLETED') throw createError(400)
+
+    await order.complete()
+    sendPushNotification({title: 'Qəbul olundu!', body: 'Deposit qəbul olundu!', pushToken: order.user.expoPushToken, data: {orderId: order._id, receiver: order.user}})
+
+    res.sendStatus(200)
+})
+
+router.patch(
+  '/deposits/:id/reject',
+  ensureRole(['ADMIN']),
+  async (req, res) => {
+    validateObjectId(req.params.id)
+
+    const order = await Deposit.findById(req.params.id)
+    if (!order) throw createError(404)
+    if (order.status === 'REJECTED') throw createError(400)
+
+    await order.reject()
+    sendPushNotification({title: 'Qəbul olunmadı!', body: 'Deposit qəbul olunmadı!', pushToken: order.user.expoPushToken, data: {orderId: order._id, receiver: order.user}})
+
+    res.sendStatus(200)
+})
+
 
 router.delete(
   '/:id',

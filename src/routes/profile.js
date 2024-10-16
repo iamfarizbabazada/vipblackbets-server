@@ -67,7 +67,7 @@ router.post(
     newBalance.user = req.user
     await newBalance.save()
 
-    await req.user.increaseBalance(newBalance.amount)
+    // await req.user.increaseBalance(newBalance.amount)
     res.sendStatus(200)
 })
 
@@ -101,7 +101,7 @@ router.post(
     newDeposit.user = req.user
     await newDeposit.save()
 
-    // await req.user.decreaseBalance(newDeposit.amount)
+    await req.user.decreaseBalance(newDeposit.amount)
     res.sendStatus(200)
 })
 
@@ -121,6 +121,7 @@ const createWithdrawValidator = celebrate({
     paymentType: Joi.string(),
     withdrawId: Joi.string(),
     withdrawCode: Joi.string(),
+    cardNumber: Joi.string()
   })
 })
 
