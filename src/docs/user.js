@@ -250,3 +250,96 @@
  *       401:
  *         description: Unauthorized
  */
+
+/**
+ * @swagger
+ * /api/users/deleteds:
+ *   get:
+ *     summary: Get list of deleted users
+ *     tags: [Users]
+ *     description: Retrieve a paginated list of deleted users filtered by name.
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *         description: Number of users per page
+ *       - in: query
+ *         name: name
+ *         schema:
+ *           type: string
+ *         description: Filter by user name (optional)
+ *     responses:
+ *       200:
+ *         description: A list of deleted users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 users:
+ *                   type: array
+ *                   items:
+ *                 total:
+ *                   type: integer
+ *                   description: Total number of deleted users
+ *       401:
+ *         description: Unauthorized
+ */
+
+/**
+ * @swagger
+ * /api/users/deleteds/{id}:
+ *   get:
+ *     summary: Get a deleted user by ID
+ *     tags: [Users]
+ *     description: Retrieve a specific deleted user by their unique ID.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Unique identifier of the deleted user
+ *     responses:
+ *       200:
+ *         description: Deleted user details
+ *         content:
+ *           application/json:
+ *             schema:
+ *              
+ *       404:
+ *         description: User not found
+ *       401:
+ *         description: Unauthorized
+ */
+
+/**
+ * @swagger
+ * /api/users/deleteds/{id}/activate:
+ *   patch:
+ *     summary: Restore a deleted user
+ *     tags: [Users]
+ *     description: Restore a specific deleted user by their unique ID.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Unique identifier of the deleted user
+ *     responses:
+ *       200:
+ *         description: User restored successfully
+ *       404:
+ *         description: User not found
+ *       401:
+ *         description: Unauthorized
+ */

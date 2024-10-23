@@ -292,3 +292,485 @@
  *       401:
  *         description: Unauthorized
  */
+
+
+/**
+ * @swagger
+ * /api/deposits/:
+ *   get:
+ *     summary: List all deposits with pagination
+ *     tags: [Deposits]
+ *     description: Retrieve a paginated list of all deposits.
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *         description: Number of deposits per page
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *         description: Filter deposits by status
+ *     responses:
+ *       200:
+ *         description: List of deposits with pagination details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 deposits:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         description: Unique identifier of the deposit
+ *                       status:
+ *                         type: string
+ *                         description: Status of the deposit
+ *                       amount:
+ *                         type: number
+ *                         description: Total amount of the deposit
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                         description: Creation date of the deposit
+ *                 total:
+ *                   type: integer
+ *                   description: Total number of deposits
+ *       401:
+ *         description: Unauthorized
+ */
+
+/**
+ * @swagger
+ * /api/deposits/{id}:
+ *   get:
+ *     summary: Get a deposit by ID
+ *     tags: [Deposits]
+ *     description: Retrieve the details of a specific deposit by its unique ID.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Unique identifier of the deposit
+ *     responses:
+ *       200:
+ *         description: Deposit details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                   description: Unique identifier of the deposit
+ *                 status:
+ *                   type: string
+ *                   description: Status of the deposit
+ *                 amount:
+ *                   type: number
+ *                   description: Total amount of the deposit
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *                   description: Creation date of the deposit
+ *       404:
+ *         description: Deposit not found
+ *       401:
+ *         description: Unauthorized
+ */
+
+/**
+ * @swagger
+ * /api/balances/:
+ *   get:
+ *     summary: List all balances with pagination
+ *     tags: [Balances]
+ *     description: Retrieve a paginated list of all balances.
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *         description: Number of balances per page
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *         description: Filter balances by status
+ *     responses:
+ *       200:
+ *         description: List of balances with pagination details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 balances:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         description: Unique identifier of the balance
+ *                       status:
+ *                         type: string
+ *                         description: Status of the balance
+ *                       amount:
+ *                         type: number
+ *                         description: Total amount of the balance
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                         description: Creation date of the balance
+ *                 total:
+ *                   type: integer
+ *                   description: Total number of balances
+ *       401:
+ *         description: Unauthorized
+ */
+
+/**
+ * @swagger
+ * /api/balances/{id}:
+ *   get:
+ *     summary: Get a balance by ID
+ *     tags: [Balances]
+ *     description: Retrieve the details of a specific balance by its unique ID.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Unique identifier of the balance
+ *     responses:
+ *       200:
+ *         description: Balance details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                   description: Unique identifier of the balance
+ *                 status:
+ *                   type: string
+ *                   description: Status of the balance
+ *                 amount:
+ *                   type: number
+ *                   description: Total amount of the balance
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *                   description: Creation date of the balance
+ *       404:
+ *         description: Balance not found
+ *       401:
+ *         description: Unauthorized
+ */
+
+/**
+ * @swagger
+ * /api/withdraws/:
+ *   get:
+ *     summary: List all withdraws with pagination
+ *     tags: [Withdraws]
+ *     description: Retrieve a paginated list of all withdraws.
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *         description: Number of withdraws per page
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *         description: Filter withdraws by status
+ *     responses:
+ *       200:
+ *         description: List of withdraws with pagination details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 withdraws:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         description: Unique identifier of the withdraw
+ *                       status:
+ *                         type: string
+ *                         description: Status of the withdraw
+ *                       amount:
+ *                         type: number
+ *                         description: Total amount of the withdraw
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                         description: Creation date of the withdraw
+ *                 total:
+ *                   type: integer
+ *                   description: Total number of withdraws
+ *       401:
+ *         description: Unauthorized
+ */
+
+/**
+ * @swagger
+ * /api/withdraws/{id}:
+ *   get:
+ *     summary: Get a withdraw by ID
+ *     tags: [Withdraws]
+ *     description: Retrieve the details of a specific withdraw by its unique ID.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Unique identifier of the withdraw
+ *     responses:
+ *       200:
+ *         description: Withdraw details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                   description: Unique identifier of the withdraw
+ *                 status:
+ *                   type: string
+ *                   description: Status of the withdraw
+ *                 amount:
+ *                   type: number
+ *                   description: Total amount of the withdraw
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *                   description: Creation date of the withdraw
+ *       404:
+ *         description: Withdraw not found
+ *       401:
+ *         description: Unauthorized
+ */
+
+/**
+ * @swagger
+ * /api/balances/{id}/complete:
+ *   patch:
+ *     summary: Complete a balance
+ *     tags: [Balances]
+ *     description: Mark a balance as completed and send a notification to the user.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Unique identifier of the balance
+ *     responses:
+ *       200:
+ *         description: Balance marked as completed
+ *       400:
+ *         description: Balance is already completed
+ *       404:
+ *         description: Balance not found
+ *       401:
+ *         description: Unauthorized
+ */
+
+/**
+ * @swagger
+ * /api/balances/{id}/reject:
+ *   patch:
+ *     summary: Reject a balance
+ *     tags: [Balances]
+ *     description: Mark a balance as rejected and send a notification to the user.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Unique identifier of the balance
+ *     responses:
+ *       200:
+ *         description: Balance marked as rejected
+ *       400:
+ *         description: Balance is already rejected
+ *       404:
+ *         description: Balance not found
+ *       401:
+ *         description: Unauthorized
+ */
+
+
+/**
+ * @swagger
+ * /api/withdraws/{id}/complete:
+ *   patch:
+ *     summary: Complete a withdraw
+ *     tags: [Withdraws]
+ *     description: Mark a withdraw as completed and send a notification to the user.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Unique identifier of the withdraw
+ *     responses:
+ *       200:
+ *         description: Withdraw marked as completed
+ *       400:
+ *         description: Withdraw is already completed or has a residual balance
+ *       404:
+ *         description: Withdraw not found
+ *       401:
+ *         description: Unauthorized
+ */
+
+/**
+ * @swagger
+ * /api/withdraws/{id}/pay:
+ *   patch:
+ *     summary: Pay a withdraw
+ *     tags: [Withdraws]
+ *     description: Pay an amount for the withdraw and send a notification to the user.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Unique identifier of the withdraw
+ *       - in: body
+ *         name: amount
+ *         schema:
+ *           type: number
+ *         description: The amount to be paid for the withdraw
+ *     responses:
+ *       200:
+ *         description: Withdraw marked as paid
+ *       404:
+ *         description: Withdraw not found
+ *       401:
+ *         description: Unauthorized
+ */
+
+/**
+ * @swagger
+ * /api/withdraws/{id}/reject:
+ *   patch:
+ *     summary: Reject a withdraw
+ *     tags: [Withdraws]
+ *     description: Mark a withdraw as rejected and send a notification to the user.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Unique identifier of the withdraw
+ *     responses:
+ *       200:
+ *         description: Withdraw marked as rejected
+ *       400:
+ *         description: Withdraw is already rejected
+ *       404:
+ *         description: Withdraw not found
+ *       401:
+ *         description: Unauthorized
+ */
+
+/**
+ * @swagger
+ * /api/deposits/{id}/complete:
+ *   patch:
+ *     summary: Complete a deposit
+ *     tags: [Deposits]
+ *     description: Mark a deposit as completed, decrease the user's balance, and send a notification.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Unique identifier of the deposit
+ *       - in: body
+ *         name: amount
+ *         schema:
+ *           type: number
+ *         description: The amount to be deducted from the user's balance (optional)
+ *     responses:
+ *       200:
+ *         description: Deposit marked as completed and balance updated
+ *       400:
+ *         description: Deposit is already completed
+ *       404:
+ *         description: Deposit not found
+ *       401:
+ *         description: Unauthorized
+ */
+
+/**
+ * @swagger
+ * /api/deposits/{id}/reject:
+ *   patch:
+ *     summary: Reject a deposit
+ *     tags: [Deposits]
+ *     description: Mark a deposit as rejected and send a notification to the user.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Unique identifier of the deposit
+ *     responses:
+ *       200:
+ *         description: Deposit marked as rejected
+ *       400:
+ *         description: Deposit is already rejected
+ *       404:
+ *         description: Deposit not found
+ *       401:
+ *         description: Unauthorized
+ */

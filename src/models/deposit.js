@@ -16,12 +16,15 @@ const depositSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    autopopulate: {select: ['name', 'email', 'avatar']},
+    autopopulate: {select: ['name', 'email', 'avatar', 'currentBalance']},
     required: true
   },
   amount: {
     type: Number,
     required: true
+  },
+  bonus: {
+    type: Number,
   },
   provider: {
     type: String,

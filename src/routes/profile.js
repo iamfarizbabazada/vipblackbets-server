@@ -83,7 +83,8 @@ const createDepositValidator = celebrate({
   [Segments.BODY]: Joi.object().keys({
     amount: Joi.number().min(0),
     provider: Joi.string(),
-    withdrawId: Joi.string()
+    withdrawId: Joi.string(),
+    bonus: Joi.number().optional()
   })
 })
 
@@ -101,7 +102,7 @@ router.post(
     newDeposit.user = req.user
     await newDeposit.save()
 
-    await req.user.decreaseBalance(newDeposit.amount)
+    // await req.user.decreaseBalance(newDeposit.amount)
     res.sendStatus(200)
 })
 
@@ -135,6 +136,8 @@ router.post(
     // if(req.file) {
     //   newBalance.file = req.file.filename
     // }
+
+    newWithdraw.residual = req.body.amount
 
     newWithdraw.user = req.user
     await newWithdraw.save()

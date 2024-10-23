@@ -88,6 +88,44 @@ const createUserValidator = celebrate({
   })
 })
 
+
+router.get(
+  '/deleteds',
+  ensureRole('ADMIN'),
+  paginationValidator,
+  async (req, res) => {
+    const { page = 1, limit = 20, name } = req.query
+    const skip = (page - 1) * limit
+    const filter = {}
+
+    if (name) {
+      filter.name = new RegExp(name, 'i')
+    }
+
+    filter.role = 'USER'
+
+
+    const total = await User.countDocumentsDeleted(filter)
+    const users = await User.findDeleted(filter)
+      .limit(limit)
+      .skip(skip)
+      .sort({ createdAt: 'desc' })
+
+    res.json({ users, total })
+})
+
+router.get(
+  '/deleteds/:id',
+  ensureRole('ADMIN'),
+  async (req, res) => {
+    validateObjectId(req.params.id)
+
+    const user = await User.findOneDeleted({_id: req.params.id})
+    res.json(user)
+  })
+
+
+
 router.post(
   '/',
   ensureRole('ADMIN'),
@@ -148,6 +186,19 @@ router.patch(
 
     res.sendStatus(200)
   })
+
+  router.patch(
+    '/:id/activate',
+    ensureRole('ADMIN'),
+    async (req, res) => {
+      validateObjectId(req.params.id)
+  
+      const user = await User.findOneDeleted({_id: req.params.id})
+      if (!user) throw createError(404)
+  
+      await user.restore()
+      res.sendStatus(200)
+    })
 
 router.delete(
   '/:id',

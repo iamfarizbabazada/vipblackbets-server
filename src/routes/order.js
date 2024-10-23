@@ -293,8 +293,25 @@ router.patch(
     const order = await Withdraw.findById(req.params.id)
     if (!order) throw createError(404)
     if (order.status === 'COMPLETED') throw createError(400)
+    if(order.residual > 0) throw createError.BadRequest(`${order.residual}`)
 
     await order.complete()
+    sendPushNotification({title: 'Qəbul olundu!', body: 'Çıxarış qəbul olundu!', pushToken: order.user.expoPushToken, data: {orderId: order._id, receiver: order.user}})
+
+    res.sendStatus(200)
+})
+
+router.patch(
+  '/withdraws/:id/pay',
+  ensureRole(['ADMIN']),
+  async (req, res) => {
+    validateObjectId(req.params.id)
+
+    const order = await Withdraw.findById(req.params.id)
+    if (!order) throw createError(404)
+    // if (order.status === 'COMPLETED') throw createError(400)
+
+    await order.pay(req.body.amount)
     sendPushNotification({title: 'Qəbul olundu!', body: 'Çıxarış qəbul olundu!', pushToken: order.user.expoPushToken, data: {orderId: order._id, receiver: order.user}})
 
     res.sendStatus(200)
@@ -326,6 +343,15 @@ router.patch(
     const order = await Deposit.findById(req.params.id)
     if (!order) throw createError(404)
     if (order.status === 'COMPLETED') throw createError(400)
+
+    const user = await User.findById(order.user)
+
+    if(req.body.amount) {
+      await user.decreaseBalance(req.body.amount)
+    } else {
+      await user.decreaseBalance(order.amount)
+    }
+
 
     await order.complete()
     sendPushNotification({title: 'Qəbul olundu!', body: 'Deposit qəbul olundu!', pushToken: order.user.expoPushToken, data: {orderId: order._id, receiver: order.user}})

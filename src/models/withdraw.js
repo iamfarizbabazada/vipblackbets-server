@@ -23,6 +23,9 @@ const withdrawSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
+  residual: {
+    type: Number,
+  },
   paymentType: {
     type: String,
     required: true
@@ -56,6 +59,11 @@ class Withdraw {
 
   reject () {
     this.status = 'REJECTED'
+    return this.save()
+  }
+
+  pay(amount) {
+    this.residual = this.residual - amount
     return this.save()
   }
 }

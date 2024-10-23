@@ -114,18 +114,7 @@ userSchema.plugin(passportLocalMongoose, {
 
 userSchema.plugin(mongooseAutopopulate)
 
-userSchema.plugin(mongooseDelete, {
-  overrideMethods: [
-    'aggregate',
-    'countDocuments',
-    'find',
-    'findOne',
-    'findOneAndUpdate',
-    'update',
-    'updateMany',
-    'updateOne'
-  ]
-})
+userSchema.plugin(mongooseDelete)
 
 userSchema.loadClass(User)
 
@@ -133,6 +122,43 @@ userSchema.loadClass(User)
 userSchema.virtual('avatarURL').get(function() {
   if(!this.avatar) return null
   return `${BASE_URL}/uploads/${this.avatar}`;
+});
+
+userSchema.virtual('totalDeposit', {
+  ref: 'Deposit', // Reference the 'Deposit' collection
+  localField: '_id', // Use the User's _id field
+  foreignField: 'user', // Match with the 'user' field in the Deposit model
+  justOne: false, // Returns an array (we'll sum it later)
+  options: {
+    autopopulate: { select: 'amount' }, // Ensure we select only the 'amount' field
+  },
+}).get(function (deposits) {
+  return deposits?.reduce((sum, deposit) => sum + deposit.amount, 0) || 0;
+});
+
+// Virtual field to calculate the total withdrawal amount
+userSchema.virtual('totalWithdraw', {
+  ref: 'Withdraw', // Reference the 'Withdraw' collection
+  localField: '_id',
+  foreignField: 'user',
+  justOne: false,
+  options: {
+    autopopulate: { select: 'amount' }, // Ensure we select only the 'amount' field
+  },
+}).get(function (withdraws) {
+  return withdraws?.reduce((sum, withdraw) => sum + withdraw.amount, 0) || 0;
+});
+
+userSchema.virtual('totalWithdrawResidual', {
+  ref: 'Withdraw', // Reference the 'Withdraw' collection
+  localField: '_id',
+  foreignField: 'user',
+  justOne: false,
+  options: {
+    autopopulate: { select: 'residual' }, // Ensure we select only the 'amount' field
+  },
+}).get(function (withdraws) {
+  return withdraws?.reduce((sum, withdraw) => sum + withdraw.residual, 0) || 0;
 });
 
 module.exports = mongoose.model('User', userSchema, 'users')
