@@ -3,6 +3,7 @@ const rateLimit = require('express-rate-limit')
 const { celebrate, Joi, Segments } = require('celebrate')
 const User = require('../models/user')
 // const Order = require('../models/order')
+const Bonus = require('../models/bonus')
 const Balance = require('../models/balance')
 const Deposit = require('../models/deposit')
 const Withdraw = require('../models/withdraw')
@@ -11,6 +12,7 @@ const Message = require('../models/message')
 const { ensureAuth, ensureRole } = require('../middlewares/auth')
 const upload = require('../middlewares/upload')
 const {sendPushNotification} = require('../utils/expo')
+const createHttpError = require('http-errors')
 
 router.get(
   '/',
@@ -84,7 +86,6 @@ const createDepositValidator = celebrate({
     amount: Joi.number().min(0),
     provider: Joi.string(),
     withdrawId: Joi.string(),
-    bonus: Joi.number().optional()
   })
 })
 
@@ -92,20 +93,60 @@ router.post(
   '/pay/deposit',
   ensureRole(['USER']),
   createDepositValidator,
-  // upload.single('file'),
   async (req, res) => {
     const newDeposit = new Deposit(req.body)
-    // if(req.file) {
-    //   newBalance.file = req.file.filename
-    // }
+    const lastBonus = await Bonus.findOne({ user: req.user }).sort({ createdAt: -1 });
+
+    if (lastBonus && lastBonus.aviable) {
+      const now = new Date();
+      const timeSinceLastBonus = now - lastBonus.createdAt;
+      
+      if (timeSinceLastBonus < 24 * 60 * 60 * 1000) {
+      newDeposit.bonus = lastBonus.bonus
+      await lastBonus.useBonus()
+      }
+    }
 
     newDeposit.user = req.user
     await newDeposit.save()
 
-    // await req.user.decreaseBalance(newDeposit.amount)
     res.sendStatus(200)
 })
 
+router.get(
+  '/history/bonus',
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    limit: 25, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+    standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+    // store: ... , // Redis, Memcached, etc. See below.
+  }),
+  ensureRole(['USER']),
+  async (req, res) => {
+    res.json(await Bonus.findByUser(req.user))
+})
+
+
+router.post(
+  '/spin',
+  rateLimit({
+    windowMs: 24 * 60 * 60 * 1000, // 15 minutes
+    limit: 5, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+    standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+    // store: ... , // Redis, Memcached, etc. See below.
+  }),
+  ensureRole(['USER']),
+  async (req, res) => {
+    const prize = await Bonus.spin(req.user)
+
+    if(!prize.success) {
+      throw createHttpError.BadRequest(prize.message)
+    }
+
+    res.json({ bonus: prize.bonus })
+})
 
 
 router.get(

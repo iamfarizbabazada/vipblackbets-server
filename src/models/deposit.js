@@ -25,6 +25,7 @@ const depositSchema = new mongoose.Schema({
   },
   bonus: {
     type: Number,
+    default: 0
   },
   provider: {
     type: String,
