@@ -296,7 +296,7 @@
 
 /**
  * @swagger
- * /api/deposits/:
+ * /api/orders/deposits/:
  *   get:
  *     summary: List all deposits with pagination
  *     tags: [Deposits]
@@ -354,7 +354,7 @@
 
 /**
  * @swagger
- * /api/deposits/{id}:
+ * /api/orders/deposits/{id}:
  *   get:
  *     summary: Get a deposit by ID
  *     tags: [Deposits]
@@ -395,7 +395,7 @@
 
 /**
  * @swagger
- * /api/balances/:
+ * /api/orders/balances/:
  *   get:
  *     summary: List all balances with pagination
  *     tags: [Balances]
@@ -453,7 +453,7 @@
 
 /**
  * @swagger
- * /api/balances/{id}:
+ * /api/orders/balances/{id}:
  *   get:
  *     summary: Get a balance by ID
  *     tags: [Balances]
@@ -494,7 +494,7 @@
 
 /**
  * @swagger
- * /api/withdraws/:
+ * /api/orders/withdraws/:
  *   get:
  *     summary: List all withdraws with pagination
  *     tags: [Withdraws]
@@ -552,7 +552,7 @@
 
 /**
  * @swagger
- * /api/withdraws/{id}:
+ * /api/orders/withdraws/{id}:
  *   get:
  *     summary: Get a withdraw by ID
  *     tags: [Withdraws]
@@ -593,7 +593,7 @@
 
 /**
  * @swagger
- * /api/balances/{id}/complete:
+ * /api/orders/balances/{id}/complete:
  *   patch:
  *     summary: Complete a balance
  *     tags: [Balances]
@@ -618,7 +618,7 @@
 
 /**
  * @swagger
- * /api/balances/{id}/reject:
+ * /api/orders/balances/{id}/reject:
  *   patch:
  *     summary: Reject a balance
  *     tags: [Balances]
@@ -644,7 +644,7 @@
 
 /**
  * @swagger
- * /api/withdraws/{id}/complete:
+ * /api/orders/withdraws/{id}/complete:
  *   patch:
  *     summary: Complete a withdraw
  *     tags: [Withdraws]
@@ -669,7 +669,7 @@
 
 /**
  * @swagger
- * /api/withdraws/{id}/pay:
+ * /api/orders/withdraws/{id}/pay:
  *   patch:
  *     summary: Pay a withdraw
  *     tags: [Withdraws]
@@ -697,7 +697,7 @@
 
 /**
  * @swagger
- * /api/withdraws/{id}/reject:
+ * /api/orders/withdraws/{id}/reject:
  *   patch:
  *     summary: Reject a withdraw
  *     tags: [Withdraws]
@@ -722,7 +722,7 @@
 
 /**
  * @swagger
- * /api/deposits/{id}/complete:
+ * /api/orders/deposits/{id}/complete:
  *   patch:
  *     summary: Complete a deposit
  *     tags: [Deposits]
@@ -752,7 +752,7 @@
 
 /**
  * @swagger
- * /api/deposits/{id}/reject:
+ * /api/orders/deposits/{id}/reject:
  *   patch:
  *     summary: Reject a deposit
  *     tags: [Deposits]
