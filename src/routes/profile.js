@@ -13,6 +13,7 @@ const { ensureAuth, ensureRole } = require('../middlewares/auth')
 const upload = require('../middlewares/upload')
 const {sendPushNotification} = require('../utils/expo')
 const createHttpError = require('http-errors')
+const moment = require('moment')
 
 router.get(
   '/',
@@ -97,15 +98,12 @@ router.post(
     const newDeposit = new Deposit(req.body)
     const lastBonus = await Bonus.findOne({ user: req.user }).sort({ createdAt: -1 });
 
-    if (lastBonus && lastBonus.aviable) {
-      const now = new Date();
-      const timeSinceLastBonus = now - lastBonus.createdAt;
-      
-      if (timeSinceLastBonus < 24 * 60 * 60 * 1000) {
+    if (lastBonus?.aviable && moment(lastBonus.createdAt).add(24, 'hours').isAfter(moment())) {
       newDeposit.bonus = lastBonus.bonus
       await lastBonus.useBonus()
-      }
     }
+
+    console.log(newDeposit, lastBonus)
 
     newDeposit.user = req.user
     await newDeposit.save()
@@ -125,6 +123,28 @@ router.get(
   ensureRole(['USER']),
   async (req, res) => {
     res.json(await Bonus.findByUser(req.user))
+})
+
+router.get(
+  '/bonus/aviable',
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    limit: 25, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+    standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+    // store: ... , // Redis, Memcached, etc. See below.
+  }),
+  ensureRole(['USER']),
+  async (req, res) => {
+    const bonus = await Bonus.findOne({ user: req.user }).sort({ createdAt: -1 })
+
+    if(!bonus) throw createHttpError(404)
+
+      const expiredDate = moment(bonus.createdAt).add(24, 'hours')
+      const isExpired = expiredDate.isBefore(moment()) || !expiredDate?.aviable
+
+
+    res.json({bonus: bonus, expired: expiredDate, isExpired: isExpired})
 })
 
 
