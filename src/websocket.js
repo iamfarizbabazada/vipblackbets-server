@@ -37,3 +37,5 @@ const setupWebSocket = (io) => {
     });
   });
 };
+
+module.exports = setupWebSocket;
