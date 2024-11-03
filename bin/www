@@ -1,13 +1,16 @@
 #!/usr/bin/env node
 
 const app = require('../src/app');
-const debug = require('debug')('your-app:server');
+// const debug = require('debug')('your-app:server');
 const http = require('http');
 const setupWebSocket = require('../src/configs/socket');
+const { HOST, PORT } = require('../src/configs/env')
+
 
 // Port ayarı
-const port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
+const port = normalizePort(PORT)
+app.set('port', port)
+
 
 // HTTP server oluşturma
 const server = http.createServer(app);
@@ -16,25 +19,31 @@ const server = http.createServer(app);
 const io = setupWebSocket(server);
 app.set('io', io); // Express app içinde io nesnesine erişim için
 
-// Server dinleme
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+server.listen(port, HOST, () => {
+  // logger.info(`Server is running on http://localhost:${PORT}`);
+})
+server.on('error', onError)
+server.on('listening', onListening)
+
 
 // Port normalizasyon fonksiyonu
-function normalizePort(val) {
-  const port = parseInt(val, 10);
+function normalizePort (val) {
+  const port = parseInt(val, 10)
+
 
   if (isNaN(port)) {
-    return val;
+    // named pipe
+    return val
   }
 
   if (port >= 0) {
-    return port;
+    // port number
+    return port
   }
 
-  return false;
+  return false
 }
+
 
 // Hata yönetimi
 function onError(error) {
