@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const app = require('../src/app');
-// const debug = require('debug')('your-app:server');
+const debug = require('debug')('your-app:server');
 const http = require('http');
 const setupWebSocket = require('../src/configs/socket');
 const { HOST, PORT } = require('../src/configs/env')
