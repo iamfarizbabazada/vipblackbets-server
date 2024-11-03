@@ -13,12 +13,7 @@ const messageSchema = new mongoose.Schema({
     required: true,
     autopopulate: {select: ['name', 'email']},
   },
-  receiver: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-    autopopulate: {select: ['name', 'email']},
-  },
+  
   file: {
     type: String,
   },

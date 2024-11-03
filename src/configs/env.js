@@ -1,6 +1,7 @@
 const Joi = require('celebrate').Joi
 const dotenv = require('dotenv')
 dotenv.config()
+// require('dotenv').config();
 
 const envValidationSchema = Joi.object()
   .keys({

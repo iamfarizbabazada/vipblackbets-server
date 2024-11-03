@@ -1,32 +1,32 @@
 const mongoose = require('mongoose');
-
-// Define the notification schema
 const notificationSchema = new mongoose.Schema({
-  receiver: {
+  userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Reference to the User model
+    ref: 'User',
     required: true
   },
-  status: {
-    type: String,
-    enum: ['INFO', 'WARN', 'ERR', 'SUCCESS'], // Define types of notifications
-    default: 'INFO'
-  },
-  title: {
-    type: String,
+  ticketId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Ticket',
     required: true
   },
-  body: {
+  type: {
+    type: String,
+    enum: ['NEW_MESSAGE', 'STATUS_CHANGE', 'TICKET_CLOSED'],
+    required: true
+  },
+  message: {
     type: String,
     required: true
   },
   read: {
     type: Boolean,
     default: false
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
   }
-}, {
-  timestamps: true
 });
 
-
-module.exports = mongoose.model('Notification', notificationSchema);
+const Notification = mongoose.model('Notification', notificationSchema);
