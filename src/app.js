@@ -123,8 +123,8 @@ app.use(function (err, req, res, next) {
 
 async function seed() {
   const credentials = {
-    name: "admin",
-    email: "admin@admin.com",
+    name: "VBB Admin",
+    email: "vbb@vipblack.bet",
     role: "ADMIN",
     emailVerified: true,
   }
@@ -134,7 +134,7 @@ async function seed() {
   if(!user) {
     credentials.emailVerifiedAt = Date.now() 
     const newUser = new User(credentials)
-    await User.register(newUser, "password123")
+    await User.register(newUser, "VbbAdmin123")
   }
 }
 
