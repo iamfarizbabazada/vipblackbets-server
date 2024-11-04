@@ -1,16 +1,28 @@
 #!/usr/bin/env node
-
-const app = require('../src/app');
 const debug = require('debug')('your-app:server');
 const http = require('http');
+const express = require('express');
 const setupWebSocket = require('../src/configs/socket');
-const { HOST, PORT } = require('../src/configs/env')
+const { HOST, PORT } = require('../src/configs/env');
 
+// Express app oluştur
+const app = express();
+
+// Port normalizasyon fonksiyonu
+function normalizePort(val) {
+    const port = parseInt(val, 10);
+    if (isNaN(port)) {
+        return val;
+    }
+    if (port >= 0) {
+        return port;
+    }
+    return false;
+}
 
 // Port ayarı
-const port = normalizePort(PORT)
-app.set('port', port)
-
+const port = normalizePort(PORT || '8080');
+app.set('port', port);
 
 // HTTP server oluşturma
 const server = http.createServer(app);
@@ -19,61 +31,45 @@ const server = http.createServer(app);
 const io = setupWebSocket(server);
 app.set('io', io); // Express app içinde io nesnesine erişim için
 
-server.listen(port, HOST, () => {
-  // logger.info(`Server is running on http://localhost:${PORT}`);
-})
-server.on('error', onError)
-server.on('listening', onListening)
-
-
-// Port normalizasyon fonksiyonu
-function normalizePort (val) {
-  const port = parseInt(val, 10)
-
-
-  if (isNaN(port)) {
-    // named pipe
-    return val
-  }
-
-  if (port >= 0) {
-    // port number
-    return port
-  }
-
-  return false
-}
-
-
 // Hata yönetimi
 function onError(error) {
-  if (error.syscall !== 'listen') {
-    throw error;
-  }
+    if (error.syscall !== 'listen') {
+        throw error;
+    }
 
-  const bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
+    const bind = typeof port === 'string'
+        ? 'Pipe ' + port
+        : 'Port ' + port;
 
-  switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
-      process.exit(1);
-      break;
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
-      process.exit(1);
-      break;
-    default:
-      throw error;
-  }
+    switch (error.code) {
+        case 'EACCES':
+            console.error(bind + ' requires elevated privileges');
+            process.exit(1);
+            break;
+        case 'EADDRINUSE':
+            console.error(bind + ' is already in use');
+            process.exit(1);
+            break;
+        default:
+            throw error;
+    }
 }
 
 // Server başlatma log'u
 function onListening() {
-  const addr = server.address();
-  const bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+    const addr = server.address();
+    const bind = typeof addr === 'string'
+        ? 'pipe ' + addr
+        : 'port ' + addr.port;
+    debug('Listening on ' + bind);
+    console.log(`Server is running on http://${HOST || 'localhost'}:${port}`);
 }
+
+// Event listeners
+server.on('error', onError);
+server.on('listening', onListening);
+
+// Server'ı başlat
+server.listen(port, HOST || '0.0.0.0');
+
+module.exports = server;
